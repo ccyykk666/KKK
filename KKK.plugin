@@ -1,0 +1,9 @@
+#!name=KKK
+
+[Rewrite]
+^https?:\/\/www\.daxuesoutijiang\.com\/init\/config\/popupconfig(?:\?|$) response-body-json-jq '.data.popupList|=map(select(.info.btype!=1))|.data.vipSales.needShow=false|.data.subscriptionRenewalAlert.isShow=false|.data.vipRecall.needRecall=false'
+^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/guide(?:\?|$) response-body-json-jq '.data.banners=[]|.data.subscriptionRenewalAlert.isShow=false'
+^https?:\/\/www\.daxuesoutijiang\.com\/dxapp\/home\/config(?:\?|$) response-body-json-jq '.data.pointsCenter=0|.data.materialCoinTaskUrl=""|.data.personalCoinTaskUrl=""|.data.adSource=""|.data.abResMap.iOSAdSource=""'
+
+[MITM]
+hostname = www.daxuesoutijiang.com
