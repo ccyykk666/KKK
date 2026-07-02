@@ -15,7 +15,7 @@
 ^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/guide(?:\?|$) response-body-json-jq '.data.banners=[]|.data.subscriptionRenewalAlert.isShow=false|.data.title=""|.data.guideInfo.card=[]|.data.guideList=[]|.data.sugConfigList=[]|.data.sugList=[]'
 
 # 首页课程表“去导课”与“突击”角标（同时处理内嵌配置）
-^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/home(?:\?|$) response-body-json-jq '.data.aiPageBar=((.data.aiPageBar//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|if (.data.aiPageBarStr|type)=="string" then .data.aiPageBarStr=(.data.aiPageBarStr|fromjson|.bigDiamond=((.bigDiamond//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|.smallDiamond=((.smallDiamond//[])|map(if .posKey=="四六级" then .cornerMarkPic="" else . end))|tojson) else . end'
+^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/home(?:\?|$) response-body-json-jq '.data.aiPageBar=((.data.aiPageBar//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|if (.data.aiPageBarStr|type)=="string" then .data.aiPageBarStr=(.data.aiPageBarStr|fromjson|.bigDiamond=((.bigDiamond//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|.smallDiamond=((.smallDiamond//[])|map(if .posKey=="四六级" or .posKey=="刷题" then .cornerMarkPic="" else . end))|tojson) else . end'
 
 # “我的”页右上角金币推广入口，同时清空广告来源配置
 ^https?:\/\/www\.daxuesoutijiang\.com\/dxapp\/home\/config(?:\?|$) response-body-json-jq '.data.pointsCenter=0|.data.materialCoinTaskUrl=""|.data.personalCoinTaskUrl=""|.data.adSource=""|.data.abResMap.iOSAdSource=""'
