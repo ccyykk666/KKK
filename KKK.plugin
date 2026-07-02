@@ -14,6 +14,12 @@
 # 首页 VIP 抢购横幅
 ^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/guide(?:\?|$) response-body-json-jq '.data.banners=[]|.data.subscriptionRenewalAlert.isShow=false'
 
+# 首页课程表“去导课”与备考“突击”“上新”角标
+^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/home(?:\?|$) response-body-json-jq '.data.aiPageBar=(.data.aiPageBar|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|.data.aiPageBarStr=(.data.aiPageBarStr|fromjson|.bigDiamond=(.bigDiamond|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|.smallDiamond=(.smallDiamond|map(if (.posKey=="四六级" or .posKey=="刷题") then .cornerMarkPic="" else . end))|tojson)'
+
+# 备考页 PRO 年卡推广
+^https?:\/\/www\.daxuesoutijiang\.com\/dxapp\/study\/annualvip(?:\?|$) reject-dict
+
 # “我的”页右上角金币推广入口，同时清空广告来源配置
 ^https?:\/\/www\.daxuesoutijiang\.com\/dxapp\/home\/config(?:\?|$) response-body-json-jq '.data.pointsCenter=0|.data.materialCoinTaskUrl=""|.data.personalCoinTaskUrl=""|.data.adSource=""|.data.abResMap.iOSAdSource=""'
 
