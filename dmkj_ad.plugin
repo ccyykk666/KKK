@@ -28,17 +28,17 @@
 # 首页推广列表 - 清除 banner 广告
 # bannerList 中每项都有 banner_type:"1" 和曝光量/点击量追踪字段
 # 这些字段是广告投放系统的标准特征，正常内容不会携带
-http-response ^https:\/\/appdmkj\.5idream\.net\/v2\/index\/promotionlist script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间首页去广告
+http-response ^https:\/\/appdmkj\.5idream\.net\/v2\/index\/promotionlist script-path=https://raw.githubusercontent.com/ccyykk666/KKK/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间首页去广告
 
 # 权益页面 - 过滤第三方App跳转类广告
 # actionType: 1=普通URL 3=外部App scheme(taobao://等) 5=内部页面
 # actionType===3 的项直接跳转第三方 App 购物，明确为商业广告
-http-response ^https:\/\/appdmkj\.5idream\.net\/equities\/page script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间权益页去广告
+http-response ^https:\/\/appdmkj\.5idream\.net\/equities\/page script-path=https://raw.githubusercontent.com/ccyykk666/KKK/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间权益页去广告
 
 # 积分页面 - 关闭广告开关
 # ad:1 是广告总开关；centerTaskAdId/listAdId/bannerAdId 控制各广告位
 # 将这些字段置 0 可阻止前端渲染广告区域
-http-response ^https:\/\/appdmkj\.5idream\.net\/points\/index\? script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间积分页关闭广告
+http-response ^https:\/\/appdmkj\.5idream\.net\/points\/index\? script-path=https://raw.githubusercontent.com/ccyykk666/KKK/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间积分页关闭广告
 
 [MITM]
 hostname = appdmkj.5idream.net
