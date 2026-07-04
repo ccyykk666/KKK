@@ -1,0 +1,44 @@
+#!name=到梦空间去广告
+#!desc=去除到梦空间(DMKJ) App中的广告和第三方推广
+#!author=基于MITM抓包数据分析
+#!date=2026-07-04
+#!loon_version=3.4.0
+
+#############################################
+# 分析依据：
+# - /v3/user/advertising/list 和 /v3/user/ad/list 是独立广告接口，响应全为广告数据
+# - promotionlist 的 bannerList 每项均含 banner_type:"1" 和曝光/点击统计，明确为推广banner
+# - equities/page 的 actionType===3 项直接唤起外部App(如 taobao://)，是第三方广告
+# - points/index 的 ad 字段为广告总开关，各 *AdId 控制广告位展示
+#############################################
+
+[Rule]
+# 无独立广告域名，不添加 Rule 规则
+
+[Rewrite]
+# 广告列表接口 - 独立广告接口，响应全部是广告数据
+# 接口路径本身命名为 "advertising"，返回空数组即可
+^https:\/\/appdmkj\.5idream\.net\/v3\/user\/advertising\/list reject-array
+
+# 广告列表接口(新版本) - 响应中每项均含 schemeContent=广告文案
+# 包括淘宝联盟、腾讯公益等第三方推广，返回空数组
+^https:\/\/appdmkj\.5idream\.net\/v3\/user\/ad\/list reject-array
+
+[Script]
+# 首页推广列表 - 清除 banner 广告
+# bannerList 中每项都有 banner_type:"1" 和曝光量/点击量追踪字段
+# 这些字段是广告投放系统的标准特征，正常内容不会携带
+http-response ^https:\/\/appdmkj\.5idream\.net\/v2\/index\/promotionlist script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间首页去广告
+
+# 权益页面 - 过滤第三方App跳转类广告
+# actionType: 1=普通URL 3=外部App scheme(taobao://等) 5=内部页面
+# actionType===3 的项直接跳转第三方 App 购物，明确为商业广告
+http-response ^https:\/\/appdmkj\.5idream\.net\/equities\/page script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间权益页去广告
+
+# 积分页面 - 关闭广告开关
+# ad:1 是广告总开关；centerTaskAdId/listAdId/bannerAdId 控制各广告位
+# 将这些字段置 0 可阻止前端渲染广告区域
+http-response ^https:\/\/appdmkj\.5idream\.net\/points\/index\? script-path=https://raw.githubusercontent.com/yourname/dmkj_ads/main/dmkj_ad_filter.js, requires-body=true, timeout=30, tag=到梦空间积分页关闭广告
+
+[MITM]
+hostname = appdmkj.5idream.net
