@@ -1,0 +1,24 @@
+#!name=无忧行去广告&界面净化
+#!desc=移除可识别的首页分类栏、邀请好友/领流量推广、我的页无忧币商城整行及服务端广告位；保留目的地与电话/消息功能
+#!author=ccyykk666 & Codex
+#!homepage=https://github.com/ccyykk666/KKK
+#!raw-url=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jegotrip-loon-plugin/JegoTrip.plugin
+#!category=去广告
+#!tag=去广告, 无忧行, JegoTrip
+#!system=iOS, iPadOS
+#!date=2026-07-04
+
+[Rule]
+# 无忧行自有行为埋点与停留时长统计
+URL-REGEX, ^https?:\/\/app\.jegotrip\.com\.cn\/eventtracking\/api\/business\/event\/api\/log\/upload(?:\?|$), REJECT-DROP
+URL-REGEX, ^https?:\/\/app-product\.jegotrip\.com\.cn\/logstores\/(?:clickevent_ios_v5|appstaytime_v5)\/shards\/lb(?:\?|$), REJECT-DROP
+
+# 阿里云应用性能日志
+DOMAIN, proj-xtrace-3d408a16b0f9bb39e477e8c4c494514e-cn-hangzhou.cn-hangzhou.log.aliyuncs.com, REJECT-DROP
+
+[Script]
+# 仅在服务端返回对应配置组时删除；未命中时原样放行
+http-response ^https?:\/\/(?:app|app3)\.jegotrip\.com\.cn\/api\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jegotrip-loon-plugin/Scripts/jegotrip_clean.js, requires-body=true, timeout=30, tag=无忧行界面净化
+
+[MITM]
+hostname = app.jegotrip.com.cn, app3.jegotrip.com.cn
