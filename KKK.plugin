@@ -1,0 +1,24 @@
+#!name=大学搜题酱去广告
+#!desc=去除 VIP 弹窗、首页 VIP 抢购横幅和金币推广入口；不修改会员状态或付费权益
+#!author=Codex
+#!homepage=https://www.daxuesoutijiang.com
+#!category=去广告
+#!tag=去广告, 大学搜题酱
+#!system=iOS, iPadOS
+#!date=2026-07-02
+
+[Rewrite]
+# VIP 弹窗：删除推广弹窗，关闭续费与召回弹窗；保留应用评价等非推广弹窗
+^https?:\/\/www\.daxuesoutijiang\.com\/init\/config\/popupconfig(?:\?|$) response-body-json-jq '.data.popupList|=map(select(.info.btype!=1))|.data.vipSales.needShow=false|.data.subscriptionRenewalAlert.isShow=false|.data.vipRecall.needRecall=false'
+
+# 首页 VIP 抢购横幅与 AI 推荐区
+^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/guide(?:\?|$) response-body-json-jq '.data.banners=[]|.data.subscriptionRenewalAlert.isShow=false|.data.title=""|.data.guideInfo.card=[]|.data.guideList=[]|.data.sugConfigList=[]|.data.sugList=[]'
+
+# 首页课程表“去导课”与“突击”角标（同时处理内嵌配置）
+^https?:\/\/www\.daxuesoutijiang\.com\/dxkits\/aisearch\/home(?:\?|$) response-body-json-jq '.data.aiPageBar=((.data.aiPageBar//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|if (.data.aiPageBarStr|type)=="string" then .data.aiPageBarStr=(.data.aiPageBarStr|fromjson|.bigDiamond=((.bigDiamond//[])|map(if .posKey=="wakeup" then .cornerMarkPic="" else . end))|.smallDiamond=((.smallDiamond//[])|map(if .posKey=="四六级" or .posKey=="刷题" then .cornerMarkPic="" else . end))|tojson) else . end'
+
+# “我的”页右上角金币推广入口，同时清空广告来源配置
+^https?:\/\/www\.daxuesoutijiang\.com\/dxapp\/home\/config(?:\?|$) response-body-json-jq '.data.pointsCenter=0|.data.materialCoinTaskUrl=""|.data.personalCoinTaskUrl=""|.data.adSource=""|.data.abResMap.iOSAdSource=""'
+
+[MITM]
+hostname = www.daxuesoutijiang.com
