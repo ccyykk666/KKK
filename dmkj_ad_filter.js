@@ -29,22 +29,61 @@ try {
     }
 
     // ============================================================
-    // 2. 权益页面：过滤 actionType === 3 的项
-    //    actionType 字段取值：
-    //      1 - 普通网页 URL 跳转
-    //      3 - 外部 App scheme 跳转（taobao://, tbopen:// 等）
-    //      5 - 内部页面 /pages/ 路由跳转
-    //    actionType === 3 的项点击后直接唤起第三方购物 App，
-    //    明确为商业推广广告，不属于平台自身权益功能
+    // 2. 权益页面：两层过滤
+    //    过滤层1: actionType === 3 → 外部 App scheme (taobao:// 等)
+    //    过滤层2: actionUrl 域名非平台自有 → 第三方商业推广链接
+    //    保留项: /pages/ 内部路由、apph5.5idream.net/notice/ 平台公告、
+    //            daomengs.com 静态资源
     // ============================================================
     if (url.indexOf("/equities/page") !== -1) {
         if (obj.data && Array.isArray(obj.data.list)) {
             obj.data.list = obj.data.list.filter(function(item) {
-                // 只保留 actionType 不是 3 的项
-                // actionType === 3 是外部 App 唤起类推广
-                return item.actionType !== 3;
+                // 过滤层1: actionType === 3 属外部 App 唤起推广
+                if (item.actionType === 3) {
+                    return false;
+                }
+                // 过滤层2: 检查跳转目标域名是否属于平台自有域名
+                // 内部路由 /pages/ 直接放行
+                var target = item.actionUrl || item.skipUrl || item.url || "";
+                if (target.indexOf("/pages/") === 0) {
+                    return true;
+                }
+                // 提取 hostname，非平台自有域名则为第三方推广
+                var host = extractHost(target);
+                if (host && !isOwnDomain(host)) {
+                    return false;
+                }
+                return true;
             });
         }
+    }
+
+    // ============================================================
+    // 工具函数: 从 URL 中提取 hostname
+    // 例: "https://m.tb.cn/h.RiEqDM1" → "m.tb.cn"
+    //     "/pages/alonePlatform/..." → "" (无协议头，不是外部链接)
+    // ============================================================
+    function extractHost(urlStr) {
+        if (!urlStr || urlStr.indexOf("://") === -1) return "";
+        var start = urlStr.indexOf("://") + 3;
+        var end = urlStr.indexOf("/", start);
+        if (end === -1) end = urlStr.length;
+        return urlStr.substring(start, end);
+    }
+
+    // ============================================================
+    // 工具函数: 判断域名是否为平台自有域名
+    // 通过域名后缀匹配，而非 URL 路径关键词匹配
+    // ============================================================
+    function isOwnDomain(host) {
+        if (!host) return false;
+        var ownDomains = ["5idream.net", "daomengs.com"];
+        for (var i = 0; i < ownDomains.length; i++) {
+            if (host === ownDomains[i] || host.indexOf("." + ownDomains[i]) === host.length - ownDomains[i].length - 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ============================================================
