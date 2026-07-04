@@ -1,0 +1,20 @@
+#!name=超级课程表去广告
+#!desc=移除开屏广告、首页头图、悬浮挂件和“联合会员中心”
+#!author=@可莉V / ccyykk666
+#!homepage=https://github.com/ccyykk666/KKK
+#!category=去广告
+#!tag=去广告, 超级课程表
+#!system=iOS, iPadOS
+#!loon_version=3.4.0(962)
+#!date=2026-07-04
+
+# 基于可莉原版规则完善：
+# https://kelee.one/Tool/Loon/Lpx/MyFriday_remove_ads.lpx
+
+[Rule]
+DOMAIN, ad.myfriday.cn, REJECT
+IP-CIDR, 182.92.244.70/32, REJECT, no-resolve
+
+[Rewrite]
+# “我的”页面：移除联合会员中心入口
+^http:\/\/120\.55\.151\.61(?::80)?\/Base\/Apps\/getPageConfig\.action(?:\?|$) response-body-json-jq '.data.pageConfig=((.data.pageConfig//[])|map(select(.title!="联合会员中心")))'
