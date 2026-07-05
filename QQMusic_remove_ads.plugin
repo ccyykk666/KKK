@@ -1,5 +1,5 @@
 #!name=QQ音乐去广告
-#!desc=移除开屏广告、我的页面广告横幅、ssbanner 与互动广告；不修改会员、积分、推荐和播放功能
+#!desc=移除开屏、首页福利横幅、金币顶棚、雷达广告及会员推广提示；不修改歌单、推荐和播放功能
 #!author=ccyykk666
 #!homepage=https://github.com/ccyykk666/KKK
 #!category=去广告
@@ -22,11 +22,15 @@ DOMAIN, tmeadquic.y.qq.com, REJECT
 DOMAIN, sdkreport.e.qq.com, REJECT
 
 [Rewrite]
-# 开屏、我的页面横幅及 sBanner 广告聚合接口
-^https:\/\/music\.y\.qq\.com\/maproxy\/getPbCompressAd(?:\?|$) reject-200
+# 广告聚合与实际素材接口
+^https:\/\/music\.y\.qq\.com\/maproxy\/(?:getPbCompressAd|getInfo)(?:\?|$) reject-200
 
 # 互动广告接口；QQ 音乐会在同组主机之间分流
 ^https:\/\/(?:c|c6|szc|szc6|shc|shc6)\.y\.qq\.com\/tips\/fcgi-bin\/fcg_get_advert\.fcg(?:\?|$) reject-200
 
+[Script]
+# 按二进制请求体中的服务/方法标识屏蔽独立运营模块
+http-request ^https:\/\/u6\.y\.qq\.com\/cgi-bin\/musics\.fcg(?:\?|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/qqmusic-ad-cleaner/QQMusic_remove_ads.js,requires-body=true,binary-body-mode=true,timeout=10,tag=QQ音乐运营模块净化
+
 [MITM]
-hostname = music.y.qq.com, c.y.qq.com, c6.y.qq.com, szc.y.qq.com, szc6.y.qq.com, shc.y.qq.com, shc6.y.qq.com
+hostname = music.y.qq.com, u6.y.qq.com, c.y.qq.com, c6.y.qq.com, szc.y.qq.com, szc6.y.qq.com, shc.y.qq.com, shc6.y.qq.com
