@@ -1,0 +1,22 @@
+#!name=学习通去广告
+#!desc=移除首页横幅、广告推荐和首页权益推荐模块；不修改课程、签到、作业、考试与消息
+#!author=ccyykk666
+#!homepage=https://github.com/ccyykk666/KKK
+#!category=去广告
+#!tag=去广告 学习通
+#!system=iOS, iPadOS
+#!loon_version=3.4.0(962)
+#!date=2026-07-05
+
+[Rewrite]
+# 首页横幅配置
+^https:\/\/home-yd\.chaoxing\.com\/apis\/banner\/getConfigInfoForXsqy(?:\?|$) reject-dict
+
+# 首页广告推荐
+^https:\/\/home-yd\.chaoxing\.com\/apis\/data\/getAdsRecommend(?:\?|$) reject-dict
+
+# 首页权益/校园推荐：保留原响应结构，只清空该接口负责的推荐列表
+^https:\/\/apps\.chaoxing\.com\/apis\/home\/getHpXsqy\.jspx(?:\?|$) response-body-json-jq '.data.list=[]|.data.list_xsqy=[]|.data.list_xysqbj=[]|.data.lanmu=[]|.data.showNewForXsqy=0'
+
+[MITM]
+hostname = home-yd.chaoxing.com, apps.chaoxing.com
