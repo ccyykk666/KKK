@@ -2,11 +2,29 @@
 // 保持 RuCu6 jingdong.js 的单脚本、URL 直接分支写法。
 
 const url = $request.url;
-const settings =
-  typeof $argument === "undefined"
-    ? []
-    : String($argument).replace(/[\[\]\s]/g, "").split(",");
-const enabled = (index) => settings.length === 0 || settings[index] !== "false";
+const argumentValues =
+  typeof $argument === "object" && $argument !== null ? $argument : {};
+const argumentDefaults = {
+  LaunchAds: true,
+  HomeAds: true,
+  BottomTabs: true,
+  NewPageAds: true,
+  OrderAds: true,
+  ProfileAds: true,
+  SearchAds: true,
+  ProductVideoAds: true,
+  HomeBlocks: true,
+  ProductPromos: false,
+  CartRecommendations: true,
+  ProductAI: true,
+  MessageRecommendations: true
+};
+const enabled = (name) => {
+  const value = Object.prototype.hasOwnProperty.call(argumentValues, name)
+    ? argumentValues[name]
+    : argumentDefaults[name];
+  return value === true || value === "true" || value === 1 || value === "1";
+};
 const rawRequestBody =
   typeof $request.body === "string" ? $request.body : "";
 let decodedRequestBody = rawRequestBody;
@@ -30,7 +48,7 @@ if (!$response.body) {
   let obj = JSON.parse($response.body);
 
   if (
-    enabled(4) &&
+    enabled("OrderAds") &&
     (url.includes("functionId=deliverLayer") ||
       url.includes("functionId=orderTrackBusiness"))
   ) {
@@ -41,11 +59,11 @@ if (!$response.body) {
         (floor) => !["banner", "jdDeliveryBanner"].includes(floor?.mId)
       );
     }
-  } else if (enabled(3) && url.includes("functionId=getTabHomeInfo")) {
+  } else if (enabled("NewPageAds") && url.includes("functionId=getTabHomeInfo")) {
     // 新品页面：悬浮动图、下拉二楼。
     if (obj?.result?.iconInfo) delete obj.result.iconInfo;
     if (obj?.result?.roofTop) delete obj.result.roofTop;
-  } else if (enabled(4) && url.includes("functionId=myOrderInfo")) {
+  } else if (enabled("OrderAds") && url.includes("functionId=myOrderInfo")) {
     // 订单页面：横幅、常购推荐、PLUS 推广和精选特惠。
     const cleanOrderFloors = (floors) => {
       if (!Array.isArray(floors)) return floors;
@@ -91,7 +109,7 @@ if (!$response.body) {
     // 旧版位于根节点；734 抓包中的新版位于 data.floors。
     obj.floors = cleanOrderFloors(obj?.floors);
     if (obj?.data) obj.data.floors = cleanOrderFloors(obj.data.floors);
-  } else if (enabled(4) && url.includes("functionId=queryFloorDetailInfo")) {
+  } else if (enabled("OrderAds") && url.includes("functionId=queryFloorDetailInfo")) {
     // 订单详情页：内容种草、PLUS 和专属权益楼层。
     const removeFloorIds = [
       "async_circleTopicFloor",
@@ -116,7 +134,7 @@ if (!$response.body) {
         );
       });
     }
-  } else if (enabled(4) && url.includes("functionId=newPurchaseWareCheck")) {
+  } else if (enabled("OrderAds") && url.includes("functionId=newPurchaseWareCheck")) {
     // 订单列表中的“我的常购”。
     if (Object.prototype.hasOwnProperty.call(obj, "purchaseOrder")) {
       delete obj.purchaseOrder;
@@ -124,7 +142,7 @@ if (!$response.body) {
     if (Object.prototype.hasOwnProperty.call(obj, "hitOrderHighPriceNewStyle")) {
       obj.hitOrderHighPriceNewStyle = 0;
     }
-  } else if (enabled(4) && url.includes("functionId=getGiftBuyEntryInfo")) {
+  } else if (enabled("OrderAds") && url.includes("functionId=getGiftBuyEntryInfo")) {
     // 订单页右上角礼物入口：抓包只确认了 newMyOrder，属于尝试项。
     if (Object.prototype.hasOwnProperty.call(obj, "newMyOrder")) {
       obj.newMyOrder = false;
@@ -132,7 +150,7 @@ if (!$response.body) {
     if (obj?.data && Object.prototype.hasOwnProperty.call(obj.data, "newMyOrder")) {
       obj.data.newMyOrder = false;
     }
-  } else if (enabled(5) && url.includes("functionId=personinfoBusiness")) {
+  } else if (enabled("ProfileAds") && url.includes("functionId=personinfoBusiness")) {
     // “我的”页面。
     const removeFloorIds = [
       "bigSaleFloor",
@@ -189,19 +207,19 @@ if (!$response.body) {
 
     obj.floors = cleanFloors(obj?.floors);
     if (obj?.others) obj.others.floors = cleanFloors(obj.others.floors);
-  } else if (enabled(0) && url.includes("functionId=start")) {
+  } else if (enabled("LaunchAds") && url.includes("functionId=start")) {
     // 开屏广告。
     if (obj?.images?.length > 0) obj.images = [];
     if (Object.prototype.hasOwnProperty.call(obj, "showTimesDaily")) {
       obj.showTimesDaily = 0;
     }
   } else if (
-    (enabled(1) || enabled(8)) &&
+    (enabled("HomeAds") || enabled("HomeBlocks")) &&
     url.includes("functionId=welcomeHome")
   ) {
     // 首页基础浮层，以及可单独控制的运营活动板块。
     let removeTypes = [];
-    if (enabled(1)) {
+    if (enabled("HomeAds")) {
       removeTypes.push(
         "bottomXview",
         "float",
@@ -212,25 +230,25 @@ if (!$response.body) {
         "topRotate"
       );
     }
-    if (enabled(8)) removeTypes.push("dynamicIcon", "hybrid");
+    if (enabled("HomeBlocks")) removeTypes.push("dynamicIcon", "hybrid");
 
     if (obj?.floorList?.length > 0) {
       obj.floorList = obj.floorList.filter(
         (floor) => !removeTypes.includes(floor?.type)
       );
     }
-    if (enabled(1)) {
+    if (enabled("HomeAds")) {
       if (obj?.webViewFloorList?.length > 0) obj.webViewFloorList = [];
       if (obj?.promotionTabs) delete obj.promotionTabs;
     }
-  } else if (enabled(6) && url.includes("functionId=clickRecommend")) {
+  } else if (enabled("SearchAds") && url.includes("functionId=clickRecommend")) {
     // 搜索结果中使用独立 Taro 模板渲染的 AI 推荐卡。
     if (obj?.data?.length > 0) {
       obj.data = obj.data.filter(
         (item) => !(item?.insertBizData && item?.tnTemplate)
       );
     }
-  } else if (enabled(6) && url.includes("functionId=hotSearchTerms")) {
+  } else if (enabled("SearchAds") && url.includes("functionId=hotSearchTerms")) {
     // 734 抓包中首页顶部“作业帮”商业热词。
     if (obj?.data?.length > 0) {
       for (let group of obj.data) {
@@ -244,16 +262,16 @@ if (!$response.body) {
       }
     }
   } else if (
-    enabled(7) &&
+    enabled("ProductVideoAds") &&
     url.includes("functionId=querySmallVideoWindow")
   ) {
     // 商品页右上角自动出现的小视频窗口。
     if (obj?.result?.contents?.length > 0) obj.result.contents = [];
   } else if (
-    (enabled(9) || enabled(11)) &&
+    (enabled("ProductPromos") || enabled("ProductAI")) &&
     url.includes("functionId=wareBusiness")
   ) {
-    if (enabled(11)) {
+    if (enabled("ProductAI")) {
       // 商品主图“AI 使用说明”及相关 AIGC 入口。
       const data = obj?.commonBaseInfo?.data;
       if (data) {
@@ -280,7 +298,7 @@ if (!$response.body) {
       }
     }
 
-    if (enabled(9)) {
+    if (enabled("ProductPromos")) {
       // 商品详情页非核心推广楼层；该开关默认关闭。
       const removeFloorIds = [
         "ActivityFloor",
@@ -296,7 +314,7 @@ if (!$response.body) {
         );
       }
     }
-  } else if (enabled(11) && url.includes("functionId=queryEvaluateFloors")) {
+  } else if (enabled("ProductAI") && url.includes("functionId=queryEvaluateFloors")) {
     // 评价页“AI 全网评”，保留普通评价、标签和晒单。
     const result = obj?.result;
     if (result && typeof result === "object") {
@@ -320,7 +338,7 @@ if (!$response.body) {
       }
     }
   } else if (
-    enabled(10) &&
+    enabled("CartRecommendations") &&
     url.includes("functionId=uniformRecommend6")
   ) {
     // 738 抓包：uniformRecommend6 仅用于购物车 source=6 推荐商品流。
@@ -336,10 +354,13 @@ if (!$response.body) {
       String(obj?.adIds || "") === "50840" ||
       (Array.isArray(obj?.tabs) && obj?.tabTnInfo);
 
-    if ((enabled(4) && isOrderRecommend) || (enabled(12) && isMessageRecommend)) {
+    if (
+      (enabled("OrderAds") && isOrderRecommend) ||
+      (enabled("MessageRecommendations") && isMessageRecommend)
+    ) {
       clearRecommendResponse(obj);
     }
-  } else if (enabled(2) && url.includes("functionId=readCustomSurfaceList")) {
+  } else if (enabled("BottomTabs") && url.includes("functionId=readCustomSurfaceList")) {
     // 底部导航：仅保留首页、消息、购物车、我的。
     const keepTabs = ["index", "messagenew", "cart", "home"];
     const modeMap = obj?.result?.modeMap;

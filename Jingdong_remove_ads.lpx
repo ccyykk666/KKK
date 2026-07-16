@@ -10,19 +10,19 @@
 #!date=2026-07-17
 
 [Argument]
-LaunchAds=switch, true, false, tag=1. 开屏广告, desc=清空启动广告图片和每日展示次数
-HomeAds=switch, true, false, tag=2. 首页浮层, desc=移除首页悬浮图、顶部动图、下拉二楼和底部氛围图
-BottomTabs=switch, true, false, tag=3. 底部导航, desc=仅保留首页、消息、购物车和我的
-NewPageAds=switch, true, false, tag=4. 新品页推广, desc=移除新品页悬浮动图和下拉二楼
-OrderAds=switch, true, false, tag=5. 订单与物流, desc=移除订单和物流推广，并尝试关闭订单页礼物入口
-ProfileAds=switch, true, false, tag=6. 我的页面, desc=移除活动与推荐楼层，以及钱包/京东服务/互动游戏整块
-SearchAds=switch, true, false, tag=7. 搜索与顶部推广, desc=移除搜索结果 AI 推荐卡和已确认的作业帮推广词
-ProductVideoAds=switch, true, false, tag=8. 商品页悬浮视频, desc=清空商品页右上角自动出现的小视频
-HomeBlocks=switch, true, false, tag=9. 首页运营板块, desc=移除快捷运营入口及品质生活等 hybrid 活动板块，保留商品推荐流
-ProductPromos=switch, false, true, tag=10. 商品页推广楼层, desc=默认关闭；移除会员权益、赠礼、活动及社区种草等非核心楼层
-CartRecommendations=switch, true, false, tag=11. 购物车猜你喜欢, desc=移除购物车底部“你可能还喜欢”商品流
-ProductAI=switch, true, false, tag=12. 商品页 AI 内容, desc=移除主图 AI 使用说明和评价区 AI 全网评，保留普通评价
-MessageRecommendations=switch, true, false, tag=13. 消息页底部推荐, desc=定向清空消息页底部商品推荐，不拦截会话、物流、提醒等消息接口
+LaunchAds=switch, true, tag=1. 开屏广告, desc=清空启动广告图片和每日展示次数
+HomeAds=switch, true, tag=2. 首页浮层, desc=移除首页悬浮图、顶部动图、下拉二楼和底部氛围图
+BottomTabs=switch, true, tag=3. 底部导航, desc=仅保留首页、消息、购物车和我的
+NewPageAds=switch, true, tag=4. 新品页推广, desc=移除新品页悬浮动图和下拉二楼
+OrderAds=switch, true, tag=5. 订单与物流, desc=移除订单和物流推广，并尝试关闭订单页礼物入口
+ProfileAds=switch, true, tag=6. 我的页面, desc=移除活动与推荐楼层，以及钱包/京东服务/互动游戏整块
+SearchAds=switch, true, tag=7. 搜索与顶部推广, desc=移除搜索结果 AI 推荐卡和已确认的作业帮推广词
+ProductVideoAds=switch, true, tag=8. 商品页悬浮视频, desc=清空商品页右上角自动出现的小视频
+HomeBlocks=switch, true, tag=9. 首页运营板块, desc=移除快捷运营入口及品质生活等 hybrid 活动板块，保留商品推荐流
+ProductPromos=switch, false, tag=10. 商品页推广楼层, desc=默认关闭；移除会员权益、赠礼、活动及社区种草等非核心楼层
+CartRecommendations=switch, true, tag=11. 购物车猜你喜欢, desc=移除购物车底部“你可能还喜欢”商品流
+ProductAI=switch, true, tag=12. 商品页 AI 内容, desc=移除主图 AI 使用说明和评价区 AI 全网评，保留普通评价
+MessageRecommendations=switch, true, tag=13. 消息页底部推荐, desc=定向清空消息页底部商品推荐，不拦截会话、物流、提醒等消息接口
 
 [Rule]
 AND, ((DOMAIN, api.m.jd.com), (PROTOCOL, TCP)), REJECT-NO-DROP
@@ -37,7 +37,7 @@ AND, ((DOMAIN, api.m.jd.com), (PROTOCOL, TCP)), REJECT-NO-DROP
 
 [Script]
 # 与原始插件一致：全部页面响应由一条 jingdong_noad 脚本处理
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:clickRecommend|deliverLayer|getGiftBuyEntryInfo|getTabHomeInfo|hotSearchTerms|myOrderInfo|newPurchaseWareCheck|orderTrackBusiness|personinfoBusiness|queryEvaluateFloors|queryFloorDetailInfo|querySmallVideoWindow|readCustomSurfaceList|start|uniformRecommend|uniformRecommend6|wareBusiness|welcomeHome)(?:&|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-7-har738, requires-body=true, timeout=20, argument=[{LaunchAds},{HomeAds},{BottomTabs},{NewPageAds},{OrderAds},{ProfileAds},{SearchAds},{ProductVideoAds},{HomeBlocks},{ProductPromos},{CartRecommendations},{ProductAI},{MessageRecommendations}], tag=jingdong_noad
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:clickRecommend|deliverLayer|getGiftBuyEntryInfo|getTabHomeInfo|hotSearchTerms|myOrderInfo|newPurchaseWareCheck|orderTrackBusiness|personinfoBusiness|queryEvaluateFloors|queryFloorDetailInfo|querySmallVideoWindow|readCustomSurfaceList|start|uniformRecommend|uniformRecommend6|wareBusiness|welcomeHome)(?:&|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-8-arguments, requires-body=true, timeout=20, argument=[{LaunchAds},{HomeAds},{BottomTabs},{NewPageAds},{OrderAds},{ProfileAds},{SearchAds},{ProductVideoAds},{HomeBlocks},{ProductPromos},{CartRecommendations},{ProductAI},{MessageRecommendations}], tag=jingdong_noad
 
 [MITM]
 hostname = api.m.jd.com
