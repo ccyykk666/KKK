@@ -293,11 +293,11 @@ if (!$response.body) {
       }
     }
     if (enabled("HomeSpecialTab")) {
-      // 740 抓包：首页顶部“特价”是服务端下发的独立 Tab。
+      // 740 抓包：首页顶部“特价”和“新品”均为服务端下发的独立 Tab。
       const topTabs = obj?.multipleTabs?.content?.data;
       if (Array.isArray(topTabs)) {
         obj.multipleTabs.content.data = topTabs.filter(
-          (tab) => Number(tab?.id) !== 482858
+          (tab) => ![482858, 482857].includes(Number(tab?.id))
         );
       }
     }
