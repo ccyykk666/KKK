@@ -7,6 +7,22 @@ const settings =
     ? []
     : String($argument).replace(/[\[\]\s]/g, "").split(",");
 const enabled = (index) => settings.length === 0 || settings[index] !== "false";
+const rawRequestBody =
+  typeof $request.body === "string" ? $request.body : "";
+let decodedRequestBody = rawRequestBody;
+try {
+  decodedRequestBody = decodeURIComponent(rawRequestBody);
+} catch (_) {}
+const requestContext = `${rawRequestBody}\n${decodedRequestBody}`;
+
+const clearRecommendResponse = (obj) => {
+  if (Array.isArray(obj?.wareInfoList)) obj.wareInfoList = [];
+  if (Array.isArray(obj?.tabs)) obj.tabs = [];
+  if (obj?.tabTnInfo) obj.tabTnInfo = {};
+  if (Object.prototype.hasOwnProperty.call(obj, "adIds")) obj.adIds = "";
+  if (Object.prototype.hasOwnProperty.call(obj, "title")) delete obj.title;
+  if (Object.prototype.hasOwnProperty.call(obj, "dmTitle")) delete obj.dmTitle;
+};
 
 if (!$response.body) {
   $done({});
@@ -79,19 +95,26 @@ if (!$response.body) {
     // 订单详情页：内容种草、PLUS 和专属权益楼层。
     const removeFloorIds = [
       "async_circleTopicFloor",
+      "async_recommendFloor",
       "async_taro_contentGrassUpFloor",
       "bpDynamicFloor",
       "plusFloor"
     ];
     if (obj?.floors?.length > 0) {
-      obj.floors = obj.floors.filter(
-        (floor) => !removeFloorIds.includes(floor?.mId)
-      );
+      obj.floors = obj.floors.filter((floor) => {
+        return (
+          !removeFloorIds.includes(floor?.mId) &&
+          floor?.data?.title !== "搭配推荐"
+        );
+      });
     }
     if (obj?.data?.floors?.length > 0) {
-      obj.data.floors = obj.data.floors.filter(
-        (floor) => !removeFloorIds.includes(floor?.mId)
-      );
+      obj.data.floors = obj.data.floors.filter((floor) => {
+        return (
+          !removeFloorIds.includes(floor?.mId) &&
+          floor?.data?.title !== "搭配推荐"
+        );
+      });
     }
   } else if (enabled(4) && url.includes("functionId=newPurchaseWareCheck")) {
     // 订单列表中的“我的常购”。
@@ -143,6 +166,8 @@ if (!$response.body) {
 
           // 头像卡右侧的学生会员推广，保留头像、会员等级等账户信息。
           if (tnData?.concisePlusInfo) delete tnData.concisePlusInfo;
+          // 左上角“点评 每日签到”滚动快讯。
+          if (tnData?.newsInfo) delete tnData.newsInfo;
         } else if (floor?.mId === "basefloorinfo") {
           if (floor?.data?.commonPopup) delete floor.data.commonPopup;
           if (floor?.data?.commonPopup_dynamic) delete floor.data.commonPopup_dynamic;
@@ -224,20 +249,95 @@ if (!$response.body) {
   ) {
     // 商品页右上角自动出现的小视频窗口。
     if (obj?.result?.contents?.length > 0) obj.result.contents = [];
-  } else if (enabled(9) && url.includes("functionId=wareBusiness")) {
-    // 商品详情页非核心推广楼层；该开关默认关闭。
-    const removeFloorIds = [
-      "ActivityFloor",
-      "bpAskCommunity",
-      "bpGiveGifts",
-      "bpdarenping14",
-      "cardBenefitLx",
-      "preferenceMore"
-    ];
-    if (obj?.floors?.length > 0) {
-      obj.floors = obj.floors.filter(
-        (floor) => !removeFloorIds.includes(floor?.mId)
-      );
+  } else if (
+    (enabled(9) || enabled(11)) &&
+    url.includes("functionId=wareBusiness")
+  ) {
+    if (enabled(11)) {
+      // 商品主图“AI 使用说明”及相关 AIGC 入口。
+      const data = obj?.commonBaseInfo?.data;
+      if (data) {
+        if (Object.prototype.hasOwnProperty.call(data, "aigcFlag")) {
+          data.aigcFlag = false;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, "aigcFlagV2")) {
+          data.aigcFlagV2 = false;
+        }
+        if (data.aigcFloorId) delete data.aigcFloorId;
+        if (data.aigcBizInfo) delete data.aigcBizInfo;
+        if (data?.daJiaPing?.floorQoList?.length > 0) {
+          for (let item of data.daJiaPing.floorQoList) {
+            if (Object.prototype.hasOwnProperty.call(item, "aiOverview")) {
+              item.aiOverview = "0";
+            }
+          }
+        }
+      }
+      for (let floor of obj?.floors || []) {
+        if (floor?.data?.extMap?.mainPicAigcInfo) {
+          delete floor.data.extMap.mainPicAigcInfo;
+        }
+      }
+    }
+
+    if (enabled(9)) {
+      // 商品详情页非核心推广楼层；该开关默认关闭。
+      const removeFloorIds = [
+        "ActivityFloor",
+        "bpAskCommunity",
+        "bpGiveGifts",
+        "bpdarenping14",
+        "cardBenefitLx",
+        "preferenceMore"
+      ];
+      if (obj?.floors?.length > 0) {
+        obj.floors = obj.floors.filter(
+          (floor) => !removeFloorIds.includes(floor?.mId)
+        );
+      }
+    }
+  } else if (enabled(11) && url.includes("functionId=queryEvaluateFloors")) {
+    // 评价页“AI 全网评”，保留普通评价、标签和晒单。
+    const result = obj?.result;
+    if (result && typeof result === "object") {
+      for (let section of Object.values(result)) {
+        if (!section || typeof section !== "object") continue;
+        if (Object.prototype.hasOwnProperty.call(section, "AIcomment")) {
+          section.AIcomment = "0";
+        }
+        if (section.aiCommentInfo) delete section.aiCommentInfo;
+        if (section?.commentIconInfo?.aiTitleIcon) {
+          delete section.commentIconInfo.aiTitleIcon;
+        }
+        if (section?.commentIconInfo?.darkAiTitleIcon) {
+          delete section.commentIconInfo.darkAiTitleIcon;
+        }
+        for (let listName of ["semanticTagList", "tagStatisticsinfoList"]) {
+          for (let item of section?.[listName] || []) {
+            if (item?.aiCommentInfo) delete item.aiCommentInfo;
+          }
+        }
+      }
+    }
+  } else if (
+    enabled(10) &&
+    url.includes("functionId=uniformRecommend6")
+  ) {
+    // 738 抓包：uniformRecommend6 仅用于购物车 source=6 推荐商品流。
+    clearRecommendResponse(obj);
+  } else if (url.includes("functionId=uniformRecommend")) {
+    const isOrderRecommend =
+      requestContext.includes("JDOrderTest_p_detail") ||
+      requestContext.includes("JDOrderTest_p_orderlist") ||
+      ["2338", "4262"].includes(String(obj?.adIds || ""));
+    const isMessageRecommend =
+      requestContext.includes("NavigationBar_DeployButton") ||
+      requestContext.includes('"source":101') ||
+      String(obj?.adIds || "") === "50840" ||
+      (Array.isArray(obj?.tabs) && obj?.tabTnInfo);
+
+    if ((enabled(4) && isOrderRecommend) || (enabled(12) && isMessageRecommend)) {
+      clearRecommendResponse(obj);
     }
   } else if (enabled(2) && url.includes("functionId=readCustomSurfaceList")) {
     // 底部导航：仅保留首页、消息、购物车、我的。
