@@ -31,10 +31,20 @@ if (!$response.body) {
     if (obj?.result?.roofTop) delete obj.result.roofTop;
   } else if (enabled(4) && url.includes("functionId=myOrderInfo")) {
     // 订单页面：横幅、常购推荐、PLUS 推广和精选特惠。
-    if (obj?.floors?.length > 0) {
+    const cleanOrderFloors = (floors) => {
+      if (!Array.isArray(floors)) return floors;
+
       let newFloors = [];
-      for (let floor of obj.floors) {
-        if (["bannerFloor", "bpDynamicFloor", "plusFloor"].includes(floor?.mId)) {
+      for (let floor of floors) {
+        if (
+          [
+            "async_circleTopicFloor",
+            "async_taro_contentGrassUpFloor",
+            "bannerFloor",
+            "bpDynamicFloor",
+            "plusFloor"
+          ].includes(floor?.mId)
+        ) {
           continue;
         }
 
@@ -59,7 +69,37 @@ if (!$response.body) {
 
         newFloors.push(floor);
       }
-      obj.floors = newFloors;
+      return newFloors;
+    };
+
+    // 旧版位于根节点；734 抓包中的新版位于 data.floors。
+    obj.floors = cleanOrderFloors(obj?.floors);
+    if (obj?.data) obj.data.floors = cleanOrderFloors(obj.data.floors);
+  } else if (enabled(4) && url.includes("functionId=queryFloorDetailInfo")) {
+    // 订单详情页：内容种草、PLUS 和专属权益楼层。
+    const removeFloorIds = [
+      "async_circleTopicFloor",
+      "async_taro_contentGrassUpFloor",
+      "bpDynamicFloor",
+      "plusFloor"
+    ];
+    if (obj?.floors?.length > 0) {
+      obj.floors = obj.floors.filter(
+        (floor) => !removeFloorIds.includes(floor?.mId)
+      );
+    }
+    if (obj?.data?.floors?.length > 0) {
+      obj.data.floors = obj.data.floors.filter(
+        (floor) => !removeFloorIds.includes(floor?.mId)
+      );
+    }
+  } else if (enabled(4) && url.includes("functionId=newPurchaseWareCheck")) {
+    // 订单列表中的“我的常购”。
+    if (Object.prototype.hasOwnProperty.call(obj, "purchaseOrder")) {
+      delete obj.purchaseOrder;
+    }
+    if (Object.prototype.hasOwnProperty.call(obj, "hitOrderHighPriceNewStyle")) {
+      obj.hitOrderHighPriceNewStyle = 0;
     }
   } else if (enabled(4) && url.includes("functionId=getGiftBuyEntryInfo")) {
     // 订单页右上角礼物入口：抓包只确认了 newMyOrder，属于尝试项。
@@ -92,7 +132,18 @@ if (!$response.body) {
       for (let floor of floors) {
         if (removeFloorIds.includes(floor?.mId)) continue;
 
-        if (floor?.mId === "basefloorinfo") {
+        if (floor?.mId === "marketTNFloorNew") {
+          const tnData = floor?.data?.tnData;
+
+          // 734 抓包：nodes 是钱包/京东服务/互动游戏整块；
+          // cardListStatic 是抽奖开红包。保留行为统计和物流卡片。
+          if (Array.isArray(tnData?.nodes) || Array.isArray(tnData?.cardListStatic)) {
+            continue;
+          }
+
+          // 头像卡右侧的学生会员推广，保留头像、会员等级等账户信息。
+          if (tnData?.concisePlusInfo) delete tnData.concisePlusInfo;
+        } else if (floor?.mId === "basefloorinfo") {
           if (floor?.data?.commonPopup) delete floor.data.commonPopup;
           if (floor?.data?.commonPopup_dynamic) delete floor.data.commonPopup_dynamic;
           if (floor?.data?.floatLayer) delete floor.data.floatLayer;
@@ -119,24 +170,75 @@ if (!$response.body) {
     if (Object.prototype.hasOwnProperty.call(obj, "showTimesDaily")) {
       obj.showTimesDaily = 0;
     }
-  } else if (enabled(1) && url.includes("functionId=welcomeHome")) {
-    // 首页悬浮、顶部动图、下拉二楼和底部氛围图。
-    const removeTypes = [
-      "bottomXview",
-      "float",
-      "photoCeiling",
-      "ruleFloat",
-      "searchIcon",
-      "tabBarAtmosphere",
-      "topRotate"
-    ];
+  } else if (
+    (enabled(1) || enabled(8)) &&
+    url.includes("functionId=welcomeHome")
+  ) {
+    // 首页基础浮层，以及可单独控制的运营活动板块。
+    let removeTypes = [];
+    if (enabled(1)) {
+      removeTypes.push(
+        "bottomXview",
+        "float",
+        "photoCeiling",
+        "ruleFloat",
+        "searchIcon",
+        "tabBarAtmosphere",
+        "topRotate"
+      );
+    }
+    if (enabled(8)) removeTypes.push("dynamicIcon", "hybrid");
+
     if (obj?.floorList?.length > 0) {
       obj.floorList = obj.floorList.filter(
         (floor) => !removeTypes.includes(floor?.type)
       );
     }
-    if (obj?.webViewFloorList?.length > 0) obj.webViewFloorList = [];
-    if (obj?.promotionTabs) delete obj.promotionTabs;
+    if (enabled(1)) {
+      if (obj?.webViewFloorList?.length > 0) obj.webViewFloorList = [];
+      if (obj?.promotionTabs) delete obj.promotionTabs;
+    }
+  } else if (enabled(6) && url.includes("functionId=clickRecommend")) {
+    // 搜索结果中使用独立 Taro 模板渲染的 AI 推荐卡。
+    if (obj?.data?.length > 0) {
+      obj.data = obj.data.filter(
+        (item) => !(item?.insertBizData && item?.tnTemplate)
+      );
+    }
+  } else if (enabled(6) && url.includes("functionId=hotSearchTerms")) {
+    // 734 抓包中首页顶部“作业帮”商业热词。
+    if (obj?.data?.length > 0) {
+      for (let group of obj.data) {
+        if (!Array.isArray(group?.hotSearchContent)) continue;
+        group.hotSearchContent = group.hotSearchContent.filter((item) => {
+          const text = [item?.iconText, item?.title, item?.showWord]
+            .filter(Boolean)
+            .join(" ");
+          return !text.includes("作业帮");
+        });
+      }
+    }
+  } else if (
+    enabled(7) &&
+    url.includes("functionId=querySmallVideoWindow")
+  ) {
+    // 商品页右上角自动出现的小视频窗口。
+    if (obj?.result?.contents?.length > 0) obj.result.contents = [];
+  } else if (enabled(9) && url.includes("functionId=wareBusiness")) {
+    // 商品详情页非核心推广楼层；该开关默认关闭。
+    const removeFloorIds = [
+      "ActivityFloor",
+      "bpAskCommunity",
+      "bpGiveGifts",
+      "bpdarenping14",
+      "cardBenefitLx",
+      "preferenceMore"
+    ];
+    if (obj?.floors?.length > 0) {
+      obj.floors = obj.floors.filter(
+        (floor) => !removeFloorIds.includes(floor?.mId)
+      );
+    }
   } else if (enabled(2) && url.includes("functionId=readCustomSurfaceList")) {
     // 底部导航：仅保留首页、消息、购物车、我的。
     const keepTabs = ["index", "messagenew", "cart", "home"];
