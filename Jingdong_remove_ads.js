@@ -1,7 +1,12 @@
 // 京东标准版响应净化
-// 写法参考 RuCu6 的 jingdong.js：按 URL 直接分支并修改响应 JSON。
+// 保持 RuCu6 jingdong.js 的单脚本、URL 直接分支写法。
 
 const url = $request.url;
+const settings =
+  typeof $argument === "undefined"
+    ? []
+    : String($argument).replace(/[\[\]\s]/g, "").split(",");
+const enabled = (index) => settings.length === 0 || settings[index] !== "false";
 
 if (!$response.body) {
   $done({});
@@ -9,8 +14,9 @@ if (!$response.body) {
   let obj = JSON.parse($response.body);
 
   if (
-    url.includes("functionId=deliverLayer") ||
-    url.includes("functionId=orderTrackBusiness")
+    enabled(4) &&
+    (url.includes("functionId=deliverLayer") ||
+      url.includes("functionId=orderTrackBusiness"))
   ) {
     // 物流页面：优惠横幅。
     if (obj?.bannerInfo) delete obj.bannerInfo;
@@ -19,11 +25,11 @@ if (!$response.body) {
         (floor) => !["banner", "jdDeliveryBanner"].includes(floor?.mId)
       );
     }
-  } else if (url.includes("functionId=getTabHomeInfo")) {
+  } else if (enabled(3) && url.includes("functionId=getTabHomeInfo")) {
     // 新品页面：悬浮动图、下拉二楼。
     if (obj?.result?.iconInfo) delete obj.result.iconInfo;
     if (obj?.result?.roofTop) delete obj.result.roofTop;
-  } else if (url.includes("functionId=myOrderInfo")) {
+  } else if (enabled(4) && url.includes("functionId=myOrderInfo")) {
     // 订单页面：横幅、常购推荐、PLUS 推广和精选特惠。
     if (obj?.floors?.length > 0) {
       let newFloors = [];
@@ -55,7 +61,7 @@ if (!$response.body) {
       }
       obj.floors = newFloors;
     }
-  } else if (url.includes("functionId=getGiftBuyEntryInfo")) {
+  } else if (enabled(4) && url.includes("functionId=getGiftBuyEntryInfo")) {
     // 订单页右上角礼物入口：抓包只确认了 newMyOrder，属于尝试项。
     if (Object.prototype.hasOwnProperty.call(obj, "newMyOrder")) {
       obj.newMyOrder = false;
@@ -63,7 +69,7 @@ if (!$response.body) {
     if (obj?.data && Object.prototype.hasOwnProperty.call(obj.data, "newMyOrder")) {
       obj.data.newMyOrder = false;
     }
-  } else if (url.includes("functionId=personinfoBusiness")) {
+  } else if (enabled(5) && url.includes("functionId=personinfoBusiness")) {
     // “我的”页面。
     const removeFloorIds = [
       "bigSaleFloor",
@@ -107,13 +113,13 @@ if (!$response.body) {
 
     obj.floors = cleanFloors(obj?.floors);
     if (obj?.others) obj.others.floors = cleanFloors(obj.others.floors);
-  } else if (url.includes("functionId=start")) {
+  } else if (enabled(0) && url.includes("functionId=start")) {
     // 开屏广告。
     if (obj?.images?.length > 0) obj.images = [];
     if (Object.prototype.hasOwnProperty.call(obj, "showTimesDaily")) {
       obj.showTimesDaily = 0;
     }
-  } else if (url.includes("functionId=welcomeHome")) {
+  } else if (enabled(1) && url.includes("functionId=welcomeHome")) {
     // 首页悬浮、顶部动图、下拉二楼和底部氛围图。
     const removeTypes = [
       "bottomXview",
@@ -131,7 +137,7 @@ if (!$response.body) {
     }
     if (obj?.webViewFloorList?.length > 0) obj.webViewFloorList = [];
     if (obj?.promotionTabs) delete obj.promotionTabs;
-  } else if (url.includes("functionId=readCustomSurfaceList")) {
+  } else if (enabled(2) && url.includes("functionId=readCustomSurfaceList")) {
     // 底部导航：仅保留首页、消息、购物车、我的。
     const keepTabs = ["index", "messagenew", "cart", "home"];
     const modeMap = obj?.result?.modeMap;
@@ -141,21 +147,6 @@ if (!$response.body) {
           (item) => keepTabs.includes(item?.functionId)
         );
       }
-    }
-  } else if (url.includes("functionId=cart")) {
-    // 购物车推荐楼层。
-    if (obj?.cartLocationMap?.loc_emptyCartFloor2) {
-      delete obj.cartLocationMap.loc_emptyCartFloor2;
-    }
-    if (obj?.emptyCartRecommendFloor) delete obj.emptyCartRecommendFloor;
-  } else if (url.includes("functionId=basicConfig")) {
-    // 消息 Socket 与内置 HTTPDNS。
-    if (obj?.data?.JDMessage?.socketmonitor) {
-      obj.data.JDMessage.socketmonitor.isSocketEstablishedAhead = 0;
-      obj.data.JDMessage.socketmonitor.isSocketReport = 0;
-    }
-    if (obj?.data?.JDHttpToolKit?.httpdns) {
-      obj.data.JDHttpToolKit.httpdns.httpdns = 0;
     }
   }
 
