@@ -361,14 +361,27 @@ if (!$response.body) {
       clearRecommendResponse(obj);
     }
   } else if (enabled("BottomTabs") && url.includes("functionId=readCustomSurfaceList")) {
-    // 底部导航：仅保留首页、消息、购物车、我的。
+    // 底部导航：彻底移除“逛”，仅保留首页、消息、购物车、我的。
     const keepTabs = ["index", "messagenew", "cart", "home"];
-    const modeMap = obj?.result?.modeMap;
+    const result = obj?.result;
+    const modeMap = result?.modeMap;
+
+    if (result) {
+      // 京东还会根据这两个根级字段和本地缓存补回 find/Discover。
+      result.navigationOrder = keepTabs.join(",");
+      result.paramValues = "Index_MessageNew_Cart_Home";
+      result.fromLocalCache = 0;
+    }
+
     for (let mode of ["dark", "normal"]) {
       if (modeMap?.[mode]?.navigationAll?.length > 0) {
-        modeMap[mode].navigationAll = modeMap[mode].navigationAll.filter(
-          (item) => keepTabs.includes(item?.functionId)
+        const tabMap = new Map(
+          modeMap[mode].navigationAll.map((item) => [item?.functionId, item])
         );
+        modeMap[mode].navigationAll = keepTabs
+          .map((functionId) => tabMap.get(functionId))
+          .filter(Boolean)
+          .map((item, position) => ({ ...item, position }));
       }
     }
   }

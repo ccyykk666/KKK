@@ -37,7 +37,7 @@ AND, ((DOMAIN, api.m.jd.com), (PROTOCOL, TCP)), REJECT-NO-DROP
 
 [Script]
 # 与原始插件一致：全部页面响应由一条 jingdong_noad 脚本处理
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:clickRecommend|deliverLayer|getGiftBuyEntryInfo|getTabHomeInfo|hotSearchTerms|myOrderInfo|newPurchaseWareCheck|orderTrackBusiness|personinfoBusiness|queryEvaluateFloors|queryFloorDetailInfo|querySmallVideoWindow|readCustomSurfaceList|start|uniformRecommend|uniformRecommend6|wareBusiness|welcomeHome)(?:&|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-8-arguments, requires-body=true, timeout=20, argument=[{LaunchAds},{HomeAds},{BottomTabs},{NewPageAds},{OrderAds},{ProfileAds},{SearchAds},{ProductVideoAds},{HomeBlocks},{ProductPromos},{CartRecommendations},{ProductAI},{MessageRecommendations}], tag=jingdong_noad
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:clickRecommend|deliverLayer|getGiftBuyEntryInfo|getTabHomeInfo|hotSearchTerms|myOrderInfo|newPurchaseWareCheck|orderTrackBusiness|personinfoBusiness|queryEvaluateFloors|queryFloorDetailInfo|querySmallVideoWindow|readCustomSurfaceList|start|uniformRecommend|uniformRecommend6|wareBusiness|welcomeHome)(?:&|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-9-bottom-tabs, requires-body=true, timeout=20, argument=[{LaunchAds},{HomeAds},{BottomTabs},{NewPageAds},{OrderAds},{ProfileAds},{SearchAds},{ProductVideoAds},{HomeBlocks},{ProductPromos},{CartRecommendations},{ProductAI},{MessageRecommendations}], tag=jingdong_noad
 
 [MITM]
 hostname = api.m.jd.com
