@@ -17,7 +17,8 @@ const argumentDefaults = {
   CartRecommendations: true,
   ProductAI: true,
   MessageRecommendations: true,
-  ProductRecommendations: true
+  ProductRecommendations: true,
+  HomeSpecialTab: true
 };
 const enabled = (name) => {
   const value = Object.prototype.hasOwnProperty.call(argumentValues, name)
@@ -247,7 +248,9 @@ if (!$response.body) {
       obj.showTimesDaily = 0;
     }
   } else if (
-    (enabled("HomeAds") || enabled("HomeBlocks")) &&
+    (enabled("HomeAds") ||
+      enabled("HomeBlocks") ||
+      enabled("HomeSpecialTab")) &&
     url.includes("functionId=welcomeHome")
   ) {
     // 首页基础浮层，以及可单独控制的运营活动板块。
@@ -287,6 +290,15 @@ if (!$response.body) {
           deliveryTab.keepLabel = 0;
           deliveryTab.labelWidth = 40;
         }
+      }
+    }
+    if (enabled("HomeSpecialTab")) {
+      // 740 抓包：首页顶部“特价”是服务端下发的独立 Tab。
+      const topTabs = obj?.multipleTabs?.content?.data;
+      if (Array.isArray(topTabs)) {
+        obj.multipleTabs.content.data = topTabs.filter(
+          (tab) => Number(tab?.id) !== 482858
+        );
       }
     }
   } else if (enabled("SearchAds") && url.includes("functionId=clickRecommend")) {
