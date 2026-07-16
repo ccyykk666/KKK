@@ -7,7 +7,6 @@ const argumentValues =
 const argumentDefaults = {
   LaunchAds: true,
   HomeAds: true,
-  BottomTabs: true,
   NewPageAds: true,
   OrderAds: true,
   ProfileAds: true,
@@ -141,6 +140,12 @@ if (!$response.body) {
     }
     if (Object.prototype.hasOwnProperty.call(obj, "hitOrderHighPriceNewStyle")) {
       obj.hitOrderHighPriceNewStyle = 0;
+    }
+  } else if (enabled("OrderAds") && url.includes("functionId=queryListAsyncInfo")) {
+    // 739 抓包：订单卡片下方的优惠券、PLUS 权益等营销引力条。
+    // 该接口的 data 仅包含按订单 ID 组织的 guide，不影响订单主体。
+    if (obj?.data && typeof obj.data === "object") {
+      obj.data.guide = {};
     }
   } else if (enabled("OrderAds") && url.includes("functionId=getGiftBuyEntryInfo")) {
     // 订单页右上角礼物入口：抓包只确认了 newMyOrder，属于尝试项。
@@ -359,30 +364,6 @@ if (!$response.body) {
       (enabled("MessageRecommendations") && isMessageRecommend)
     ) {
       clearRecommendResponse(obj);
-    }
-  } else if (enabled("BottomTabs") && url.includes("functionId=readCustomSurfaceList")) {
-    // 底部导航：彻底移除“逛”，仅保留首页、消息、购物车、我的。
-    const keepTabs = ["index", "messagenew", "cart", "home"];
-    const result = obj?.result;
-    const modeMap = result?.modeMap;
-
-    if (result) {
-      // 京东还会根据这两个根级字段和本地缓存补回 find/Discover。
-      result.navigationOrder = keepTabs.join(",");
-      result.paramValues = "Index_MessageNew_Cart_Home";
-      result.fromLocalCache = 0;
-    }
-
-    for (let mode of ["dark", "normal"]) {
-      if (modeMap?.[mode]?.navigationAll?.length > 0) {
-        const tabMap = new Map(
-          modeMap[mode].navigationAll.map((item) => [item?.functionId, item])
-        );
-        modeMap[mode].navigationAll = keepTabs
-          .map((functionId) => tabMap.get(functionId))
-          .filter(Boolean)
-          .map((item, position) => ({ ...item, position }));
-      }
     }
   }
 
