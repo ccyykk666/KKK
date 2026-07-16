@@ -147,6 +147,33 @@ if (!$response.body) {
     if (obj?.data && typeof obj.data === "object") {
       obj.data.guide = {};
     }
+  } else if (enabled("OrderAds") && url.includes("functionId=newUserAllOrderList")) {
+    // 734 抓包：订单页“秒送”旁的外卖图标，以及“服务”旁的搬家轮播图。
+    const navigationTabs = obj?.listNavigationTabList;
+    if (Array.isArray(navigationTabs)) {
+      for (const tab of navigationTabs) {
+        if (String(tab?.tabId) === "2") {
+          // 保留“秒送”Tab，只清空右侧图标和动画素材。
+          tab.tabIconUrl = "";
+          tab.tabIconDarkUrl = "";
+          tab.tabIconWidth = 0;
+          tab.tabIconHeight = 0;
+          tab.deliveryLottieMap = {};
+          tab.deliveryLottieUrl = "";
+          tab.iosDeliveryLottieUrl = "";
+          tab.showDeliveryClose = false;
+        } else if (String(tab?.tabId) === "3") {
+          // 保留“服务”Tab，只清空右侧轮播营销图。
+          tab.tabIconUrl = "";
+          tab.tabIconDarkUrl = "";
+          tab.tabIconWidth = 0;
+          tab.tabIconHeight = 0;
+          tab.carouselIconList = [];
+          tab.carouselIconDarkList = [];
+          tab.carouselNum = 0;
+        }
+      }
+    }
   } else if (enabled("OrderAds") && url.includes("functionId=getGiftBuyEntryInfo")) {
     // 订单页右上角礼物入口：抓包只确认了 newMyOrder，属于尝试项。
     if (Object.prototype.hasOwnProperty.call(obj, "newMyOrder")) {
@@ -245,6 +272,21 @@ if (!$response.body) {
     if (enabled("HomeAds")) {
       if (obj?.webViewFloorList?.length > 0) obj.webViewFloorList = [];
       if (obj?.promotionTabs) delete obj.promotionTabs;
+
+      // 740 抓包：首页顶部“秒送”Tab 右侧的外卖图片角标。
+      const topTabs = obj?.multipleTabs?.content?.data;
+      if (Array.isArray(topTabs)) {
+        const deliveryTab = topTabs.find(
+          (tab) => Number(tab?.id) === 495057
+        );
+        if (deliveryTab) {
+          deliveryTab.labelNormal = "";
+          deliveryTab.labelDark = "";
+          deliveryTab.labelDeep = "";
+          deliveryTab.keepLabel = 0;
+          deliveryTab.labelWidth = 40;
+        }
+      }
     }
   } else if (enabled("SearchAds") && url.includes("functionId=clickRecommend")) {
     // 搜索结果中使用独立 Taro 模板渲染的 AI 推荐卡。
