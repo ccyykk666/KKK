@@ -16,7 +16,8 @@ const argumentDefaults = {
   ProductPromos: false,
   CartRecommendations: true,
   ProductAI: true,
-  MessageRecommendations: true
+  MessageRecommendations: true,
+  ProductRecommendations: true
 };
 const enabled = (name) => {
   const value = Object.prototype.hasOwnProperty.call(argumentValues, name)
@@ -315,9 +316,27 @@ if (!$response.body) {
     // 商品页右上角自动出现的小视频窗口。
     if (obj?.result?.contents?.length > 0) obj.result.contents = [];
   } else if (
-    (enabled("ProductPromos") || enabled("ProductAI")) &&
+    enabled("ProductAI") &&
+    url.includes("functionId=aigc_guide")
+  ) {
+    // 741 抓包：商品主图“AI 使用说明”还会由独立引导接口下发。
+    if (obj?.data && typeof obj.data === "object") obj.data = {};
+  } else if (
+    (enabled("ProductPromos") ||
+      enabled("ProductAI") ||
+      enabled("ProductVideoAds") ||
+      enabled("ProductRecommendations")) &&
     url.includes("functionId=wareBusiness")
   ) {
+    if (enabled("ProductVideoAds")) {
+      // 741 抓包：“直播讲解”和“红包雨”共用 liveInfo 浮层数据。
+      const data = obj?.commonBaseInfo?.data;
+      if (data?.liveInfo) delete data.liveInfo;
+      if (obj?.shareData?.statusInfo) {
+        obj.shareData.statusInfo.livewindow = false;
+      }
+    }
+
     if (enabled("ProductAI")) {
       // 商品主图“AI 使用说明”及相关 AIGC 入口。
       const data = obj?.commonBaseInfo?.data;
@@ -343,6 +362,11 @@ if (!$response.body) {
           delete floor.data.extMap.mainPicAigcInfo;
         }
       }
+    }
+
+    if (enabled("ProductRecommendations") && obj?.floors?.length > 0) {
+      // 741 抓包：“为你推荐”和“潮流配件馆”同属 bpyxlc14 融合楼层。
+      obj.floors = obj.floors.filter((floor) => floor?.mId !== "bpyxlc14");
     }
 
     if (enabled("ProductPromos")) {
