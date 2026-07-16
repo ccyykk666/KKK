@@ -22,32 +22,32 @@ JD-NetworkCleanup = switch, true, false, tag = 9. 基础网络净化, desc = 关
 
 [Script]
 # 1. 开屏广告
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=start script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]开屏广告, enable={JD-LaunchAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=start script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-launch, requires-body=true, timeout=20, tag=[京东]开屏广告, enable={JD-LaunchAds}
 
 # 2. 首页浮层与运营组件
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=welcomeHome script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]首页浮层, enable={JD-HomeAds}
-http-request ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=getWidgetV1052 script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, tag = [京东]首页运营组件, enable={JD-HomeAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=welcomeHome script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-home, requires-body=true, timeout=20, tag=[京东]首页浮层, enable={JD-HomeAds}
+http-request ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=getWidgetV1052 script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_reject_ads.js?v=20260717-4-widget, timeout=10, tag=[京东]首页运营组件, enable={JD-HomeAds}
 
 # 3. 底部导航
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=readCustomSurfaceList script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]底部导航, enable={JD-BottomTabs}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=readCustomSurfaceList script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-tabs, requires-body=true, timeout=20, tag=[京东]底部导航, enable={JD-BottomTabs}
 
 # 4. 新品页推广
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=getTabHomeInfo script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]新品页推广, enable={JD-NewPageAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=getTabHomeInfo script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-new, requires-body=true, timeout=20, tag=[京东]新品页推广, enable={JD-NewPageAds}
 
 # 5. 购物车推荐
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=cart(?:V\d+)?(?:&|$) script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]购物车推荐, enable={JD-CartAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=cart(?:V\d+)?(?:&|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-cart, requires-body=true, timeout=20, tag=[京东]购物车推荐, enable={JD-CartAds}
 
 # 6. 订单与物流
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:deliverLayer|getGiftBuyEntryInfo|myOrderInfo|orderTrackBusiness) script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]订单与物流, enable={JD-OrderAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:deliverLayer|getGiftBuyEntryInfo|myOrderInfo|orderTrackBusiness) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-order, requires-body=true, timeout=20, tag=[京东]订单与物流, enable={JD-OrderAds}
 
 # 7. 我的页面
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=personinfoBusiness script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]我的页面, enable={JD-ProfileAds}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=personinfoBusiness script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-profile, requires-body=true, timeout=20, tag=[京东]我的页面, enable={JD-ProfileAds}
 
 # 8. 通用营销推荐接口。刻意排除 uniformRecommend、recommendShop 及全部消息页接口。
-http-request ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:cartCouponRecommendGoods|intelligentRecommendSku|searchBoxWord|stationPullService) script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, tag = [京东]营销推荐接口, enable={JD-RecommendAPIs}
+http-request ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(?:cartCouponRecommendGoods|intelligentRecommendSku|searchBoxWord|stationPullService) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_reject_ads.js?v=20260717-4-recommend, timeout=10, tag=[京东]营销推荐接口, enable={JD-RecommendAPIs}
 
 # 9. 基础网络净化
-http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=basicConfig script-path = https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-3, requires-body = true, tag = [京东]基础网络净化, enable={JD-NetworkCleanup}
+http-response ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=basicConfig script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/jingdong-ad-cleaner/Jingdong_remove_ads.js?v=20260717-4-network, requires-body=true, timeout=20, tag=[京东]基础网络净化, enable={JD-NetworkCleanup}
 
 [MitM]
 hostname = api.m.jd.com
