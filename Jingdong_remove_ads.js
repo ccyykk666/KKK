@@ -1,7 +1,23 @@
 // 京东标准版分类净化脚本。
 // 不处理消息页推荐，不包含历史比价功能。
 
-const url = $request.url;
+const url = typeof $request !== "undefined" ? $request.url : "";
+
+function getFunctionId(requestUrl) {
+  const match = requestUrl.match(/[?&]functionId=([^&#]+)/);
+  if (!match) return "";
+  try {
+    return decodeURIComponent(match[1]);
+  } catch (_) {
+    return match[1];
+  }
+}
+
+const functionId = getFunctionId(url);
+
+function matchesFunction(prefix) {
+  return functionId === prefix || functionId.startsWith(`${prefix}V`);
+}
 
 function removeKeys(object, keys) {
   if (!object || typeof object !== "object") return;
@@ -136,8 +152,8 @@ function cleanBottomTabs(object) {
 
 function transform(object) {
   if (
-    url.includes("functionId=deliverLayer") ||
-    url.includes("functionId=orderTrackBusiness")
+    matchesFunction("deliverLayer") ||
+    matchesFunction("orderTrackBusiness")
   ) {
     removeKeys(object, ["bannerInfo"]);
     if (Array.isArray(object?.floors)) {
@@ -145,11 +161,11 @@ function transform(object) {
         (floor) => !["banner", "jdDeliveryBanner"].includes(floor?.mId)
       );
     }
-  } else if (url.includes("functionId=getTabHomeInfo")) {
+  } else if (matchesFunction("getTabHomeInfo")) {
     removeKeys(object?.result, ["iconInfo", "roofTop"]);
-  } else if (url.includes("functionId=myOrderInfo")) {
+  } else if (matchesFunction("myOrderInfo")) {
     object.floors = cleanOrderFloors(object?.floors);
-  } else if (url.includes("functionId=getGiftBuyEntryInfo")) {
+  } else if (matchesFunction("getGiftBuyEntryInfo")) {
     if (Object.prototype.hasOwnProperty.call(object, "newMyOrder")) {
       object.newMyOrder = false;
     }
@@ -159,15 +175,15 @@ function transform(object) {
     ) {
       object.data.newMyOrder = false;
     }
-  } else if (url.includes("functionId=personinfoBusiness")) {
+  } else if (matchesFunction("personinfoBusiness")) {
     object.floors = cleanPersonFloors(object?.floors);
     if (object?.others) object.others.floors = cleanPersonFloors(object.others.floors);
-  } else if (url.includes("functionId=start")) {
+  } else if (matchesFunction("start")) {
     if (Array.isArray(object?.images)) object.images = [];
     if (Object.prototype.hasOwnProperty.call(object, "showTimesDaily")) {
       object.showTimesDaily = 0;
     }
-  } else if (url.includes("functionId=welcomeHome")) {
+  } else if (matchesFunction("welcomeHome")) {
     const typesToRemove = new Set([
       "bottomXview",
       "float",
@@ -183,12 +199,12 @@ function transform(object) {
     }
     if (Array.isArray(object?.webViewFloorList)) object.webViewFloorList = [];
     removeKeys(object, ["promotionTabs"]);
-  } else if (url.includes("functionId=readCustomSurfaceList")) {
+  } else if (matchesFunction("readCustomSurfaceList")) {
     return cleanBottomTabs(object);
-  } else if (url.includes("functionId=cart")) {
+  } else if (matchesFunction("cart")) {
     removeKeys(object?.cartLocationMap, ["loc_emptyCartFloor2"]);
     removeKeys(object, ["emptyCartRecommendFloor"]);
-  } else if (url.includes("functionId=basicConfig")) {
+  } else if (matchesFunction("basicConfig")) {
     return cleanBasicConfig(object);
   }
 
@@ -196,11 +212,16 @@ function transform(object) {
 }
 
 try {
-  if (typeof $response === "undefined") {
+  if (!url) {
+    console.log("[京东净化] 本脚本只能由 HTTP 请求或响应触发，请勿手动运行。");
+    $done({});
+  } else if (typeof $response === "undefined") {
+    console.log(`[京东净化] 命中请求接口: ${functionId || url}`);
     emptyRequestWithSuccess();
   } else if (!$response?.body) {
     $done({});
   } else {
+    console.log(`[京东净化] 命中响应接口: ${functionId || url}`);
     const object = JSON.parse($response.body);
     $done({ body: JSON.stringify(transform(object)) });
   }
