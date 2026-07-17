@@ -1,0 +1,45 @@
+#!name=Keep去广告
+#!desc=过滤Keep广告
+#!tag=去广告 Keep
+#!system=iOS, iPadOS
+#!loon_version=3.4.0(962)
+#!date=2026-07-17
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/27/3c/95/273c95c2-19ee-78f0-bb96-d42a2403732f/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg
+
+[Rewrite]
+# 应用内弹窗
+^https?:\/\/api\.gotokeep\.com\/guide-webapp\/v\d+\/popup\/getPopUp(?:\?.*)?$ reject-200
+^https?:\/\/api\.gotokeep\.com\/running\/v\d+\/home\/dialog(?:\?.*)?$ reject-200
+^https?:\/\/api\.gotokeep\.com\/kprime\/v\d+\/popups\/primeGuide(?:\?.*)?$ reject-200
+^https?:\/\/api\.gotokeep\.com\/cauchy\/growth\/init(?:\?.*)?$ reject-200
+
+# 开屏与运营广告
+^https?:\/\/hc-ssp\.sm\.cn(?:\/|$) reject-200
+^https?:\/\/kad\.gotokeep\.com\/op-engine-webapp\/v\d+\/ad(?:\/|\?|$) reject-200
+^https?:\/\/api\.gotokeep\.com\/op-engine-webapp\/v\d+\/ad(?:\/|\?|$) reject-200
+^https?:\/\/api\.gotokeep\.com\/ads\/v\d+\/ads\/preload(?:\?.*)?$ reject-200
+^https?:\/\/api\.gotokeep\.com\/training\/box\/config(?:\?.*)?$ reject-200
+
+# 搜索推广与更新提示
+^https?:\/\/api\.gotokeep\.com\/search\/v\d+\/(?:default\/keyword\/list|hotword\/list|hotHashtag\/list|hotCourse\/list)(?:\?.*)?$ reject-200
+^https?:\/\/api\.gotokeep\.com\/anno\/v\d+\/upgrade\/check(?:\?.*)?$ reject-200
+
+# 数据中心“运动币”推广提示
+^https?:\/\/store\.gotokeep\.com\/api\/v1\/marketing\/sportCoin\/notice(?:\?.*)?$ reject-dict
+
+[Script]
+# 新版“我的”页：请求明文响应后删除会员推广；同时兼容旧版明文接口
+http-request ^https?:\/\/api\.gotokeep\.com\/athena\/v\d+\/people\/encrypt\/my(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_request.js, timeout=30, tag=Keep我的页面明文化
+http-response ^https?:\/\/api\.gotokeep\.com\/athena\/v\d+\/people\/(?:encrypt\/)?my(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep我的页面净化
+
+# 延续原模块的底栏与首页标签净化，并兼容不同接口版本
+http-response ^https?:\/\/api\.gotokeep\.com\/config\/v\d+\/basic(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep底栏净化
+
+# 首页信息流净化
+http-response ^https?:\/\/api\.gotokeep\.com\/twins\/v4\/feed\/course(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep首页信息流净化
+
+# 跑步页过滤“语音陪跑”推广，并切回普通模式
+http-response ^https?:\/\/api\.gotokeep\.com\/pencil-webapp\/play\/v1\/games(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep跑步页净化
+
+[MITM]
+hostname = api.gotokeep.com, hc-ssp.sm.cn, kad.gotokeep.com, store.gotokeep.com
