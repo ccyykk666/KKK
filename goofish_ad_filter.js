@@ -4,7 +4,7 @@
  * 基于 GoofishAds.conf V1.0.11 的既有净化范围，增加：
  * 1. 清除普通搜索页、商品详情页搜索框填充词；
  * 2. 移除首页全部频道（金刚位），包括登录后的刷新响应；
- * 3. 移除“我的”页闲鱼会员 X7 横幅；
+ * 3. 移除搜索激活页的推荐标签和热搜榜；
  * 4. 移除商品详情“换机补贴”营销组件；
  * 5. 清除“集市”旁的“更便宜”图片角标。
  *
@@ -33,6 +33,11 @@ if (!body) {
             url.indexOf("mtop.taobao.idlemtopsearch.detailpage.search.shade") !== -1
         ) {
             cleanSearchShade(obj, url);
+        } else if (
+            url.indexOf("mtop.taobao.idlemtopsearch.search.activate.tablist") !== -1 ||
+            url.indexOf("mtop.taobao.idlemtopsearch.search.activate.trendlist") !== -1
+        ) {
+            cleanSearchActivate(obj, url);
         } else if (url.indexOf("mtop.idle.user.page.my.adapter") !== -1) {
             cleanMyPage(obj);
         } else if (url.indexOf("mtop.taobao.idle.awesome.detail.unit") !== -1) {
@@ -177,6 +182,26 @@ function cleanSearchShade(obj, requestUrl) {
     }
 }
 
+function cleanSearchActivate(obj, requestUrl) {
+    if (!isObject(obj.data)) {
+        return;
+    }
+
+    if (
+        requestUrl.indexOf("search.activate.tablist") !== -1 &&
+        Array.isArray(obj.data.tabList)
+    ) {
+        obj.data.tabList = [];
+    }
+
+    if (
+        requestUrl.indexOf("search.activate.trendlist") !== -1 &&
+        Array.isArray(obj.data.resultList)
+    ) {
+        obj.data.resultList = [];
+    }
+}
+
 function cleanMyPage(obj) {
     if (!isObject(obj.data)) {
         return;
@@ -196,16 +221,6 @@ function cleanMyPage(obj) {
         return /head|user|trade/.test(section.sectionBizCode);
     });
 
-    obj.data.container.sections.forEach(function (section) {
-        if (
-            /^user/.test(section.sectionBizCode) &&
-            isObject(section.item) &&
-            isObject(section.item.level) &&
-            section.item.level.itemBizCode === "level"
-        ) {
-            delete section.item.level;
-        }
-    });
 }
 
 function cleanItemDetail(obj) {

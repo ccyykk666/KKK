@@ -1,5 +1,5 @@
 #!name=闲鱼净化
-#!desc=基于墨鱼版规则过滤闲鱼广告，并移除首页频道、搜索填充词、会员横幅和详情页补贴推广
+#!desc=基于墨鱼版规则过滤闲鱼广告，并移除首页图标频道、清除搜索推荐和详情页补贴推广
 #!author=@ddgksf2013（原规则）, ccyykk666（Loon 增强）
 #!tag=去广告, 闲鱼
 #!system=iOS, iPadOS
@@ -51,7 +51,10 @@ http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/(?:mtop\.taobao\.idle
 # 搜索：清除普通搜索页和商品详情页的搜索框填充词
 http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.(?:search\.shade|detailpage\.search\.shade)\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼搜索填充词净化
 
-# 我的页面：保留原插件楼层净化，并移除“闲鱼会员 X7”横幅
+# 搜索激活页：移除截图中的推荐标签栏和热搜榜
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search\.activate\.(?:tablist|trendlist)\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼搜索热榜净化
+
+# 我的页面：保留原插件楼层净化，保留“闲鱼会员 X7”
 http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.idle\.user\.page\.my\.adapter\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼我的页面净化
 
 # 商品详情：移除“换机补贴”营销组件，不修改活动价、包邮等交易信息
