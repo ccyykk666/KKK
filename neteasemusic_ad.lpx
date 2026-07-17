@@ -11,7 +11,6 @@
 BottomSimple = switch,true,tag=[导航·底部] 仅保留首页/我的,desc=关闭后保留服务端原始底栏
 TopRcmd = switch,true,tag=[导航·顶部] 推荐,desc=显示“推荐”Tab
 TopMusic = switch,true,tag=[导航·顶部] 音乐,desc=显示“音乐”Tab
-TopHeart = switch,false,tag=[导航·顶部] 心动,desc=显示“心动”Tab；关闭时由首个启用项复用客户端兼容锚点
 TopPodcast = switch,false,tag=[导航·顶部] 播客,desc=显示“播客”Tab
 TopBook = switch,false,tag=[导航·顶部] 听书,desc=显示“听书”Tab
 TopLive = switch,false,tag=[导航·顶部] 午夜飞行,desc=显示“午夜飞行”Tab
@@ -24,7 +23,7 @@ HomeSimple = switch,true,tag=[首页] 精简推荐模块,desc=移除问候语、
 CommentClean = switch,true,tag=[评论] 移除笔记与推广,desc=移除笔记 Tab、相关笔记、发笔记入口及评论话题标签
 
 # ===== 我的 =====
-MineClean = switch,true,tag=[我的] 移除会员推广,desc=移除我的页横幅、侧栏限时促销和菜单营销副标题
+MineClean = switch,true,tag=[我的] 页面与侧栏净化,desc=移除会员推广、菜单副标题及 AI 写歌/商城/云村有票/云推歌
 
 # ===== 广告 =====
 AdClean = switch,true,tag=[广告] 基础广告净化,desc=移除 Banner、免流推广、收银台弹窗和批量广告
@@ -42,7 +41,7 @@ http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.
 
 http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/tab script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=底部 Tab, argument=[{BottomSimple}]
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/top\/tab script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=顶部 Tab, argument=[{TopRcmd},{TopMusic},{TopHeart},{TopPodcast},{TopBook},{TopLive},{TopAI}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/top\/tab script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=顶部 Tab, argument=[{TopRcmd},{TopMusic},{TopPodcast},{TopBook},{TopLive},{TopAI}]
 
 http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:homepage\/block\/page|link\/page\/discovery\/resource\/show|sp\/flow\/popup\/query|vipactivity\/app\/cashier\/setting\/get) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=基础广告净化, argument=[{AdClean}]
 
