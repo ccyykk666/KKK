@@ -18,7 +18,8 @@ const argumentDefaults = {
   ProductAI: true,
   MessageRecommendations: true,
   ProductRecommendations: true,
-  HomeSpecialTab: true
+  HomeSpecialTab: true,
+  ProfileDetailAds: true
 };
 const enabled = (name) => {
   const value = Object.prototype.hasOwnProperty.call(argumentValues, name)
@@ -241,6 +242,29 @@ if (!$response.body) {
 
     obj.floors = cleanFloors(obj?.floors);
     if (obj?.others) obj.others.floors = cleanFloors(obj.others.floors);
+  } else if (
+    enabled("ProfileDetailAds") &&
+    url.includes("functionId=personalCenter")
+  ) {
+    // 743 抓包：档案页账单下方的“高考生档案”运营横幅。
+    if (
+      obj?.data &&
+      Object.prototype.hasOwnProperty.call(obj.data, "operationBanner")
+    ) {
+      delete obj.data.operationBanner;
+    }
+  } else if (
+    enabled("ProfileDetailAds") &&
+    url.includes("functionId=queryCircleInfo")
+  ) {
+    // 743 抓包：档案页底部“数码先锋/数码圈”等双列资讯推荐流。
+    if (Array.isArray(obj?.wareInfoList)) obj.wareInfoList = [];
+    if (Object.prototype.hasOwnProperty.call(obj, "hasNextPage")) {
+      obj.hasNextPage = false;
+    }
+    if (Object.prototype.hasOwnProperty.call(obj, "hasNext")) {
+      obj.hasNext = false;
+    }
   } else if (enabled("LaunchAds") && url.includes("functionId=start")) {
     // 开屏广告。
     if (obj?.images?.length > 0) obj.images = [];
