@@ -1,13 +1,10 @@
-#!name=网易云音乐净化（Loon 优化版）
-#!desc=移除网易云音乐广告与推广，支持在 Loon 内逐项自定义顶部导航
+#!name=网易云音乐净化
+#!desc=过滤网易云音乐广告
 #!openUrl=https://apps.apple.com/app/id590338362
-#!author=Yu9191（原作）
 #!tag=去广告
 #!system=ios
 #!loon_version=3.2.4(787)
-#!homepage=https://github.com/Yu9191/NeteasemusicAd
 #!icon=https://raw.githubusercontent.com/Keywos/rule/main/tv/app/144px/Netease.png
-#!date=2026-07-17
 
 [Argument]
 # ===== 导航 =====
