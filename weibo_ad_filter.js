@@ -14,7 +14,9 @@ if (!$response.body) {
     if (url.includes("/2/comments/build_comments")) {
       cleanCommentResponse(body);
     } else if (url.includes("/2/statuses/friends/timeline") ||
-               url.includes("/2/statuses/unread_hot_timeline")) {
+               url.includes("/2/statuses/unread_hot_timeline") ||
+               url.includes("/2/statuses/container_timeline_hot") ||
+               url.includes("/2/statuses/container_timeline_topic")) {
       cleanTimeline(body);
     } else if (url.includes("/2/statuses/container_detail")) {
       cleanContainerDetail(body);
@@ -27,6 +29,10 @@ if (!$response.body) {
     } else if (hasPortalAction(url, "user_center")) {
       cleanUserCenter(body);
     }
+
+    // HAR 753：用户对象的 icons 数组中 name="vip" 即昵称右侧会员图标。
+    // 仅移除这一项，保留 verified 等黄 V/蓝 V 认证字段。
+    cleanVipIcons(body);
 
     $done({ body: JSON.stringify(body) });
   } catch (_) {
@@ -166,6 +172,21 @@ function cleanUserCenter(root) {
 
   data.cards = data.cards.filter(function (card) {
     return Array.isArray(card && card.items) && card.items.length > 0;
+  });
+}
+
+function cleanVipIcons(root) {
+  walk(root, function (node) {
+    const isUserObject =
+      typeof node.screen_name === "string" ||
+      Object.prototype.hasOwnProperty.call(node, "mbtype") ||
+      Object.prototype.hasOwnProperty.call(node, "mbrank");
+
+    if (!isUserObject || !Array.isArray(node.icons)) return;
+
+    node.icons = node.icons.filter(function (icon) {
+      return String(icon && icon.name || "").toLowerCase() !== "vip";
+    });
   });
 }
 
