@@ -19,7 +19,8 @@ const argumentDefaults = {
   MessageRecommendations: true,
   ProductRecommendations: true,
   HomeSpecialTab: true,
-  ProfileDetailAds: true
+  ProfileDetailAds: true,
+  SettingsPageClean: true
 };
 const enabled = (name) => {
   const value = Object.prototype.hasOwnProperty.call(argumentValues, name)
@@ -264,6 +265,33 @@ if (!$response.body) {
     }
     if (Object.prototype.hasOwnProperty.call(obj, "hasNext")) {
       obj.hasNext = false;
+    }
+  } else if (
+    enabled("SettingsPageClean") &&
+    url.includes("functionId=myjdSetBusiness")
+  ) {
+    // 745 抓包：设置页“必备工具”是独立楼层，可整层删除。
+    if (Array.isArray(obj?.floors)) {
+      obj.floors = obj.floors.filter((floor) => {
+        const nodes = floor?.data?.nodes;
+        return (
+          floor?.refId !== "TN_settingsToolFloors" &&
+          !nodes?.some((node) => node?.functionId === "changyonggongju")
+        );
+      });
+
+      // 仅清空“账号设置”右侧说明和红点，保留名称、图标及跳转。
+      const accountFloor = obj.floors.find(
+        (floor) => floor?.refId === "TN_settingsFloors_2"
+      );
+      for (const node of accountFloor?.data?.nodes || []) {
+        if (node?.subtitle && typeof node.subtitle === "object") {
+          node.subtitle.value = "";
+        }
+        if (Object.prototype.hasOwnProperty.call(node, "showRedDot")) {
+          node.showRedDot = 0;
+        }
+      }
     }
   } else if (enabled("LaunchAds") && url.includes("functionId=start")) {
     // 开屏广告。
