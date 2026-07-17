@@ -55,11 +55,14 @@ if (!$response.body) {
     (url.includes("functionId=deliverLayer") ||
       url.includes("functionId=orderTrackBusiness"))
   ) {
-    // 物流页面：优惠横幅。
+    // 物流页面：优惠横幅及地图上方的寄件推广条。
     if (obj?.bannerInfo) delete obj.bannerInfo;
     if (obj?.floors?.length > 0) {
       obj.floors = obj.floors.filter(
-        (floor) => !["banner", "jdDeliveryBanner"].includes(floor?.mId)
+        (floor) =>
+          !["banner", "jdDeliveryBanner", "noticeFloorTrack"].includes(
+            floor?.mId
+          )
       );
     }
   } else if (enabled("NewPageAds") && url.includes("functionId=getTabHomeInfo")) {
