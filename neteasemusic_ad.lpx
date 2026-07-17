@@ -54,4 +54,4 @@ http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.
 http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:v1\/user\/info|link\/position\/show\/resource|delivery\/batch-deliver) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=我的页面净化, argument=[{MineClean}]
 
 [MitM]
-hostname = ipv4.music.163.com, interface.music.163.com, interface*.music.163.com, music.163.com
+hostname = ipv4.music.163.com, interface.music.163.com, interface2.music.163.com, interface3.music.163.com, interface4.music.163.com, interface5.music.163.com, music.163.com
