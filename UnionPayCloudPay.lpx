@@ -1,0 +1,21 @@
+#!name=云闪付去广告
+#!desc=过滤云闪付广告及相关推广域名；部分广告需清理缓存或重新安装 App 后生效
+#!author=奶思
+#!homepage=https://github.com/fmz200/wool_scripts
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/74/d1/9c/74d19c8b-76ba-0bf8-a786-dbe7b6333fc7/AppIcon-0-1x_U007ephone-0-1-0-sRGB-85-220-0.png/512x512bb.jpg
+#!raw-url=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/unionpay-cloudpay/UnionPayCloudPay.lpx
+#!tg-channel=https://t.me/inaisi
+#!category=去广告
+#!tag=去广告 云闪付
+#!system=iOS
+#!loon_version=3.4.0(962)
+#!date=2026-07-17
+
+[Rule]
+DOMAIN,ads.95516.com,REJECT
+DOMAIN,cm-10-138.getui.com,REJECT
+DOMAIN,sdk.open.talk.getui.net,REJECT
+DOMAIN,sdk-conf.getui.com,REJECT
+DOMAIN,switch.cup.com.cn,REJECT
+DOMAIN,tysdk.95516.com,REJECT
+DOMAIN,ads.cup.com.cn,REJECT
