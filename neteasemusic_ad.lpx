@@ -1,0 +1,57 @@
+#!name=网易云音乐净化（Loon 优化版）
+#!desc=移除网易云音乐广告与推广，支持在 Loon 内逐项自定义顶部导航
+#!openUrl=https://apps.apple.com/app/id590338362
+#!author=Yu9191（原作）
+#!tag=去广告
+#!system=ios
+#!loon_version=3.2.4(787)
+#!homepage=https://github.com/Yu9191/NeteasemusicAd
+#!icon=https://raw.githubusercontent.com/Keywos/rule/main/tv/app/144px/Netease.png
+#!date=2026-07-17
+
+[Argument]
+# ===== 导航 =====
+BottomSimple = switch,true,tag=[导航·底部] 仅保留首页/我的,desc=关闭后保留服务端原始底栏
+TopRcmd = switch,true,tag=[导航·顶部] 推荐,desc=显示“推荐”Tab
+TopMusic = switch,true,tag=[导航·顶部] 音乐,desc=显示“音乐”Tab
+TopHeart = switch,false,tag=[导航·顶部] 心动,desc=显示“心动”Tab
+TopPodcast = switch,false,tag=[导航·顶部] 播客,desc=显示“播客”Tab
+TopBook = switch,false,tag=[导航·顶部] 听书,desc=显示“听书”Tab
+TopLive = switch,false,tag=[导航·顶部] 午夜飞行,desc=显示“午夜飞行”Tab
+TopAI = switch,false,tag=[导航·顶部] AI 写歌,desc=显示“AI 写歌”Tab
+
+# ===== 首页 =====
+HomeSimple = switch,true,tag=[首页] 精简推荐模块,desc=移除问候语、快捷入口、音乐合伙人等运营模块
+
+# ===== 评论 =====
+CommentClean = switch,true,tag=[评论] 移除笔记与推广,desc=移除笔记 Tab、相关笔记、发笔记入口及评论话题标签
+
+# ===== 我的 =====
+MineClean = switch,true,tag=[我的] 移除会员推广,desc=移除我的页横幅、侧栏限时促销和菜单营销副标题
+
+# ===== 广告 =====
+AdClean = switch,true,tag=[广告] 基础广告净化,desc=移除 Banner、免流推广、收银台弹窗和批量广告
+
+[Rule]
+DOMAIN, iadmat.nosdn.127.net, REJECT
+DOMAIN, iadmatapk.nosdn.127.net, REJECT
+DOMAIN, iadmusicmat.music.126.net, REJECT
+DOMAIN, iadmusicmatvideo.music.126.net, REJECT
+
+[Script]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:batch|v2\/resource\/comments|v2\/resource\/comment\/floor\/get) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=评论与批量广告, argument=[{CommentClean},{AdClean}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:moment\/tab\/info\/get|comment\/feed\/inserted\/resources(?:\/combined)?|moment\/pub\/entrance\/get|moment\/song\/feed\/get) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=评论笔记净化, argument=[{CommentClean}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/tab script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=底部 Tab, argument=[{BottomSimple}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/top\/tab script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=顶部 Tab, argument=[{TopRcmd},{TopMusic},{TopHeart},{TopPodcast},{TopBook},{TopLive},{TopAI}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:homepage\/block\/page|link\/page\/discovery\/resource\/show|sp\/flow\/popup\/query|vipactivity\/app\/cashier\/setting\/get) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=基础广告净化, argument=[{AdClean}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/page\/rcmd\/(?:resource\/show|block\/resource\/multi\/refresh) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=首页推荐精简, argument=[{HomeSimple}]
+
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:v1\/user\/info|link\/position\/show\/resource|delivery\/batch-deliver) script-path=neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=我的页面净化, argument=[{MineClean}]
+
+[MitM]
+hostname = ipv4.music.163.com, interface.music.163.com, interface*.music.163.com, music.163.com
