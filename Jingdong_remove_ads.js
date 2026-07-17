@@ -281,14 +281,15 @@ if (!$response.body) {
       });
 
       // 清空账号设置、功能设置等菜单的右侧说明和红点；
-      // 保留名称、图标及跳转。地区项用空格防止客户端回填本地值。
+      // 保留名称、图标及跳转。地区项由客户端维护，不做修改。
       for (const floor of obj.floors) {
         const templateId = String(floor?.tnConfig?.templateId || "");
         if (!templateId.includes("jdmine_setting_menu")) continue;
 
         for (const node of floor?.data?.nodes || []) {
+          if (node?.functionId === "i18n") continue;
           if (node?.subtitle && typeof node.subtitle === "object") {
-            node.subtitle.value = node?.functionId === "i18n" ? " " : "";
+            node.subtitle.value = "";
           }
           if (Object.prototype.hasOwnProperty.call(node, "showRedDot")) {
             node.showRedDot = 0;
