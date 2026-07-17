@@ -1,0 +1,64 @@
+#!name=闲鱼净化
+#!desc=基于墨鱼版规则过滤闲鱼广告，并移除首页频道、搜索填充词、会员横幅和详情页补贴推广
+#!author=@ddgksf2013（原规则）, ccyykk666（Loon 增强）
+#!tag=去广告, 闲鱼
+#!system=iOS, iPadOS
+#!loon_version=3.4.0(962)
+#!date=2026-07-17
+
+# 原始规则：GoofishAds.conf V1.0.11（@ddgksf2013）
+# 增强依据：2026-07-17 真机 HAR；只处理已确认的接口和稳定结构字段。
+
+[Rule]
+# 原插件规则：优酷广告素材域名
+DOMAIN-SUFFIX,iyes.youku.com,REJECT
+
+[Rewrite]
+# 开屏广告
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop.*splash\.ads reject-200
+
+# 首页右下角悬浮球
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.user\.strategy\.list response-body-json-jq '.data.strategies=[{}]'
+
+# 开屏通用广告
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.idle\.ad\.expose reject-200
+
+# 猜你可能找
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.item\.search\.activate response-body-json-jq '.data.cardList=[{}]'
+
+# 搜索发现
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search\.discover response-body-json-jq 'del(.data.resultList)'
+
+# 我的页面底部信息流
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.item\.buy\.feeds response-body-json-jq 'del(.data.sections)'
+
+# 本地信息流广告
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.local\.home response-body-json-jq '.data.sections|=map(select(.data.bizType=="item"))'
+
+# 搜索结果信息流广告
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search(?:\/|\?) response-body-json-jq '.data.resultList|=map(select(.data.item.main.clickParam.args.biz_type=="item"))'
+
+# 商品底部推荐广告
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.item\.recommend response-body-json-jq '.data.cardList|=map(select(.cardData.bizType!="mamaAD"))'
+
+[Script]
+# 首页顶部：保留原插件 saveMoney 过滤，并清除“集市”旁的“更便宜”图片角标
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlehome\.home\.circle\.list\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼首页顶部净化
+
+# 首页：保留原插件信息流过滤，并移除全部频道；同步处理登录后的频道刷新接口
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/(?:mtop\.taobao\.idlehome\.home\.nextfresh|mtop\.taobao\.idlehome\.widget\.refresh\.get)\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼首页频道净化
+
+# 搜索：清除普通搜索页和商品详情页的搜索框填充词
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.(?:search\.shade|detailpage\.search\.shade)\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼搜索填充词净化
+
+# 我的页面：保留原插件楼层净化，并移除“闲鱼会员 X7”横幅
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.idle\.user\.page\.my\.adapter\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼我的页面净化
+
+# 商品详情：移除“换机补贴”营销组件，不修改活动价、包邮等交易信息
+http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.awesome\.detail\.unit\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼商品详情净化
+
+# 原插件 AMDC 处理
+http-response ^http:\/\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+){1,4}(?::\d+)?\/amdc\/mobileDispatch script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/amdc.js, requires-body=true, timeout=30, tag=闲鱼 AMDC 处理
+
+[Mitm]
+hostname = acs.m.goofish.com, g-acs.m.goofish.com
