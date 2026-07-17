@@ -280,16 +280,22 @@ if (!$response.body) {
         );
       });
 
-      // 仅清空“账号设置”右侧说明和红点，保留名称、图标及跳转。
-      const accountFloor = obj.floors.find(
-        (floor) => floor?.refId === "TN_settingsFloors_2"
-      );
-      for (const node of accountFloor?.data?.nodes || []) {
-        if (node?.subtitle && typeof node.subtitle === "object") {
-          node.subtitle.value = "";
-        }
-        if (Object.prototype.hasOwnProperty.call(node, "showRedDot")) {
-          node.showRedDot = 0;
+      // 清空账号设置、功能设置等菜单的右侧说明和红点；
+      // 保留名称、图标及跳转。地区项用空格防止客户端回填本地值。
+      for (const floor of obj.floors) {
+        const templateId = String(floor?.tnConfig?.templateId || "");
+        if (!templateId.includes("jdmine_setting_menu")) continue;
+
+        for (const node of floor?.data?.nodes || []) {
+          if (node?.subtitle && typeof node.subtitle === "object") {
+            node.subtitle.value = node?.functionId === "i18n" ? " " : "";
+          }
+          if (Object.prototype.hasOwnProperty.call(node, "showRedDot")) {
+            node.showRedDot = 0;
+          }
+          if (Object.prototype.hasOwnProperty.call(node, "redDotType")) {
+            node.redDotType = 0;
+          }
         }
       }
     }
