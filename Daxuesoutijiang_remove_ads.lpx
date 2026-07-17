@@ -5,7 +5,7 @@
 #!system=iOS, iPadOS
 #!loon_version=3.4.0(962)
 #!homepage=https://github.com/ccyykk666/KKK
-#!icon=https://raw.githubusercontent.com/ccyykk666/KKK/codex/daxuesoutijiang-ad-cleaner/icons/Daxuesoutijiang.jpg
+#!icon=https://raw.githubusercontent.com/ccyykk666/KKK/366847a7824a11795debc0ce9397d6ed17067267/icons/Daxuesoutijiang.jpg
 #!date=2026-07-17
 
 [Argument]
@@ -20,7 +20,7 @@ SearchHotWords=switch, true, tag=8. 搜索热词, desc=清空首页搜索推广�
 AdConfig=switch, true, tag=9. 广告配置, desc=清空服务端下发的 iOS 广告源列表
 
 [Script]
-http-response ^https:\/\/(?:www\.daxuesoutijiang\.com\/(?:dxkits\/aisearch\/(?:home|guide)|dxapp\/(?:home\/config|question\/banner|pointsActivity\/taskReport)|capi\/user\/mine|init\/config\/popupconfig)|apivip\.zuoyebang\.com\/viponline\/college\/mycard)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/daxuesoutijiang-ad-cleaner/Daxuesoutijiang_remove_ads.js, requires-body=true, timeout=20, argument=[{HomeBadges},{HomeGuide},{SearchBanner},{MinePromotions},{CoinCenter},{CoinRewardToast},{PopupClean},{SearchHotWords},{AdConfig}], tag=daxuesoutijiang_noad
+http-response ^https:\/\/(?:www\.daxuesoutijiang\.com\/(?:dxkits\/aisearch\/(?:home|guide)|dxapp\/(?:home\/config|question\/banner|pointsActivity\/taskReport)|capi\/user\/mine|init\/config\/popupconfig)|apivip\.zuoyebang\.com\/viponline\/college\/mycard)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/366847a7824a11795debc0ce9397d6ed17067267/Daxuesoutijiang_remove_ads.js, requires-body=true, timeout=20, argument=[{HomeBadges},{HomeGuide},{SearchBanner},{MinePromotions},{CoinCenter},{CoinRewardToast},{PopupClean},{SearchHotWords},{AdConfig}], tag=daxuesoutijiang_noad
 
 [MITM]
 hostname = www.daxuesoutijiang.com, apivip.zuoyebang.com
