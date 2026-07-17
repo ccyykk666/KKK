@@ -30,6 +30,17 @@ const enabled = (name) => {
 };
 const rawRequestBody =
   typeof $request.body === "string" ? $request.body : "";
+const requestHeaders =
+  typeof $request.headers === "object" && $request.headers !== null
+    ? $request.headers
+    : {};
+const requestHeader = (name) => {
+  const key = Object.keys(requestHeaders).find(
+    (item) => item.toLowerCase() === name.toLowerCase()
+  );
+  return key ? String(requestHeaders[key] || "") : "";
+};
+const requestRefererPage = requestHeader("x-referer-page");
 let decodedRequestBody = rawRequestBody;
 try {
   decodedRequestBody = decodeURIComponent(rawRequestBody);
@@ -64,6 +75,11 @@ if (!$response.body) {
             floor?.mId
           )
       );
+      for (const floor of obj.floors) {
+        if (floor?.mId === "orderTrackList" && floor?.data?.allPackages) {
+          delete floor.data.allPackages;
+        }
+      }
     }
   } else if (enabled("NewPageAds") && url.includes("functionId=getTabHomeInfo")) {
     // 新品页面：悬浮动图、下拉二楼。
@@ -493,6 +509,11 @@ if (!$response.body) {
       requestContext.includes("JDOrderTest_p_detail") ||
       requestContext.includes("JDOrderTest_p_orderlist") ||
       ["2338", "4262"].includes(String(obj?.adIds || ""));
+    const isLogisticsRecommend =
+      requestRefererPage === "JDOrderTrackBigMapViewController" ||
+      (requestContext.includes('"source":4') &&
+        requestContext.includes('"newUIStyle":true') &&
+        requestContext.includes('"dlvAddr"'));
     const isMessageRecommend =
       requestContext.includes("NavigationBar_DeployButton") ||
       requestContext.includes('"source":101') ||
@@ -500,7 +521,7 @@ if (!$response.body) {
       (Array.isArray(obj?.tabs) && obj?.tabTnInfo);
 
     if (
-      (enabled("OrderAds") && isOrderRecommend) ||
+      (enabled("OrderAds") && (isOrderRecommend || isLogisticsRecommend)) ||
       (enabled("MessageRecommendations") && isMessageRecommend)
     ) {
       clearRecommendResponse(obj);
