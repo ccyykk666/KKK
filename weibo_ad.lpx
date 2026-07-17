@@ -1,0 +1,26 @@
+#!name=微博轻享版去广告
+#!desc=过滤微博轻享版广告
+#!tag=去广告
+#!system=ios
+#!loon_version=3.4.0(962)
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/54/79/68/54796812-7dd6-1a2d-018e-feaa73052ae5/WeiboAppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg
+
+[Rewrite]
+# 广告预加载与实时广告
+^https:\/\/bootpreload\.uve\.weibo\.com\/v1\/ad\/preload$ reject-dict
+^https:\/\/bootrealtime\.uve\.weibo\.com\/v2\/ad\/realtime$ reject-dict
+^https:\/\/api\.weibo\.cn\/2\/ad\/ reject-dict
+^https:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*\ba=(?:get_searching_info|get_coopen_ads)\b reject-dict
+
+[Script]
+# 评论区：阻止评论广告，并移除服务端添加的蓝色搜索词链接
+http-response ^https:\/\/api\.weibo\.cn\/2\/comments\/build_comments(?:\?|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/weibo-light-ad-cleaner/weibo_ad_filter.js, requires-body=true, timeout=20, tag=微博评论净化
+
+# 信息流、热榜与详情页广告
+http-response ^https:\/\/api\.weibo\.cn\/2\/(?:statuses\/(?:friends\/timeline|unread_hot_timeline|container_detail)|cardlist)(?:\?|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/weibo-light-ad-cleaner/weibo_ad_filter.js, requires-body=true, timeout=20, tag=微博信息流净化
+
+# 发现页与“我的”页精简
+http-response ^https:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*\ba=(?:trends|discover_all|user_center)\b script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/weibo-light-ad-cleaner/weibo_ad_filter.js, requires-body=true, timeout=20, tag=微博页面精简
+
+[Mitm]
+hostname = api.weibo.cn, weibointl.api.weibo.cn, bootpreload.uve.weibo.com, bootrealtime.uve.weibo.com
