@@ -38,7 +38,7 @@ http-response ^https?:\/\/api\.gotokeep\.com\/config\/v\d+\/basic(?:\?.*)?$ scri
 # 首页信息流净化
 http-response ^https?:\/\/api\.gotokeep\.com\/twins\/v4\/feed\/course(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep首页信息流净化
 
-# 跑步页过滤“语音陪跑”推广，并切回普通模式
+# 跑步页移除“语音陪跑 / AI 智能指导”模式入口
 http-response ^https?:\/\/api\.gotokeep\.com\/pencil-webapp\/play\/v1\/games(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/keep-ad-cleaner/keep_ad_filter.js, requires-body=true, timeout=30, tag=Keep跑步页净化
 
 [MITM]

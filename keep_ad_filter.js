@@ -54,17 +54,7 @@ function cleanCourseFeed(obj) {
   );
 }
 
-function isAudioGuideTip(tipInfo) {
-  if (!tipInfo || typeof tipInfo !== "object") return false;
-
-  return (
-    tipInfo.aiMode === "audioGuide" ||
-    tipInfo.bizId === "audioGuide" ||
-    String(tipInfo.cacheKey || "").endsWith("_audioGuide")
-  );
-}
-
-function cleanRunningAudioGuide(obj) {
+function cleanRunningAiModeEntry(obj) {
   const games = obj?.data?.games;
   if (!Array.isArray(games)) return;
 
@@ -76,32 +66,8 @@ function cleanRunningAudioGuide(obj) {
     }
 
     for (const microGame of game.microGames) {
-      const info = microGame?.leftIcon?.info;
-      if (!info || typeof info !== "object") continue;
-
-      if (Array.isArray(info.aimodes)) {
-        const audioGuideSelected = info.aimodes.some(
-          (mode) => mode?.aiMode === "audioGuide" && mode?.check === true
-        );
-
-        info.aimodes = info.aimodes.filter(
-          (mode) => mode?.aiMode !== "audioGuide"
-        );
-
-        if (audioGuideSelected) {
-          const normalMode = info.aimodes.find(
-            (mode) => mode?.aiMode === "normal"
-          );
-          if (normalMode) {
-            for (const mode of info.aimodes) {
-              mode.check = mode === normalMode;
-            }
-          }
-        }
-      }
-
-      if (isAudioGuideTip(info.tipInfo)) {
-        delete info.tipInfo;
+      if (microGame?.leftIcon?.type === "aiMode") {
+        microGame.leftIcon = null;
       }
     }
   }
@@ -120,7 +86,7 @@ if (!$response.body) {
     } else if (/\/twins\/v4\/feed\/course(?:\?|$)/.test(url)) {
       cleanCourseFeed(obj);
     } else if (/\/pencil-webapp\/play\/v1\/games(?:\?|$)/.test(url)) {
-      cleanRunningAudioGuide(obj);
+      cleanRunningAiModeEntry(obj);
     }
 
     $done({ body: JSON.stringify(obj) });
