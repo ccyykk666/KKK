@@ -24,6 +24,10 @@ DOMAIN-SUFFIX,iyes.youku.com,REJECT
 ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search\.activate\.tablist\/ response-body-json-jq '.data.tabList=[]'
 ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search\.activate\.trendlist\/ response-body-json-jq '.data.resultList=[]'
 ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.idle\.user\.page\.my\.adapter\/ response-body-json-jq '.data.ability=[]|.data.container.sections|=map(select(.sectionBizCode|test("head|user|trade")))'
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.trade\.full\.info\/ response-body-json-jq '.data.components|=map(select(.render!="recommendTabVO" and .render!="priceRateDetailVO" and .render!="bannerVO"))'
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.item\.resell\.recommendorhotcate\/ reject-dict
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.item\.resell\.channel\/ reject-dict
+^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.activity\.sell\.seller\.recommend\/ reject-dict
 
 [Script]
 http-response ^https?:\/\/(?:g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlehome\.home\.circle\.list\/ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/goofish-cleaner/goofish_ad_filter.js, requires-body=true, timeout=30, tag=闲鱼首页顶部净化
