@@ -1,0 +1,26 @@
+#!name=大学搜题酱净化
+#!desc=移除大学搜题酱广告与推广
+#!openUrl=https://apps.apple.com/cn/app/id1519166316
+#!tag=去广告, 页面净化
+#!system=iOS, iPadOS
+#!loon_version=3.4.0(962)
+#!homepage=https://github.com/ccyykk666/KKK
+#!icon=https://raw.githubusercontent.com/ccyykk666/KKK/366847a7824a11795debc0ce9397d6ed17067267/icons/Daxuesoutijiang.jpg
+#!date=2026-07-17
+
+[Argument]
+HomeBadges=switch, true, tag=1. 首页角标, desc=移除课程表“去导课”、四六级“突击”和刷题“上新”等入口角标
+HomeGuide=switch, true, tag=2. 首页问题推荐, desc=移除“Hi，有问题随时问我”问题卡及期末网课推广
+SearchBanner=switch, true, tag=3. 搜题结果横幅, desc=移除答案页“随身 AI 考官”等推广横幅
+MinePromotions=switch, true, tag=4. 我的页会员推广, desc=移除“去开通 VIP”卡片及 PC 插件会员横幅
+CoinCenter=switch, true, tag=5. 金币入口, desc=移除页面顶部金币中心入口
+CoinRewardToast=switch, false, tag=6. 金币完成提示, desc=实验功能；尝试移除“完成拍搜，获得金币”浮条，默认关闭以免影响金币任务反馈
+PopupClean=switch, true, tag=7. 弹窗净化, desc=移除评价弹窗、会员促销及召回弹窗配置
+SearchHotWords=switch, true, tag=8. 搜索热词, desc=清空首页搜索推广词，不影响手动搜题
+AdConfig=switch, true, tag=9. 广告配置, desc=清空服务端下发的 iOS 广告源列表
+
+[Script]
+http-response ^https:\/\/(?:www\.daxuesoutijiang\.com\/(?:dxkits\/aisearch\/(?:home|guide)|dxapp\/(?:home\/config|question\/banner|pointsActivity\/taskReport)|capi\/user\/mine|init\/config\/popupconfig)|apivip\.zuoyebang\.com\/viponline\/college\/mycard)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/366847a7824a11795debc0ce9397d6ed17067267/Daxuesoutijiang_remove_ads.js, requires-body=true, timeout=20, argument=[{HomeBadges},{HomeGuide},{SearchBanner},{MinePromotions},{CoinCenter},{CoinRewardToast},{PopupClean},{SearchHotWords},{AdConfig}], tag=daxuesoutijiang_noad
+
+[MITM]
+hostname = www.daxuesoutijiang.com, apivip.zuoyebang.com
