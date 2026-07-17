@@ -1,0 +1,34 @@
+#!name=QQ音乐净化
+#!desc=过滤QQ音乐广告
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/75/56/40/7556408c-d5f4-ca20-68ef-63c6052ecfdc/AppIcon-0-0-1x_U007ephone-0-0-0-1-0-0-sRGB-85-220.png/512x512bb.jpg
+#!tag=去广告
+#!system=iOS, iPadOS
+#!loon_version=3.4.0
+
+[Rule]
+DOMAIN,adstats.tencentmusic.com,REJECT
+DOMAIN,ad.tencentmusic.com,REJECT
+DOMAIN,adcdn.tencentmusic.com,REJECT
+DOMAIN,adcdn6.tencentmusic.com,REJECT
+DOMAIN,adexpo.tencentmusic.com,REJECT
+DOMAIN,adclick.tencentmusic.com,REJECT
+DOMAIN,tmead.y.qq.com,REJECT
+DOMAIN,tmeadquic.y.qq.com,REJECT
+DOMAIN,tmeadbak.y.qq.com,REJECT
+DOMAIN,tmeadcomm.y.qq.com,REJECT
+DOMAIN,sdkreport.e.qq.com,REJECT
+DOMAIN,mtteve.beacon.qq.com,REJECT
+DOMAIN,mttstr.beacon.qq.com,REJECT
+DOMAIN,monitor.music.qq.com,REJECT
+DOMAIN,stat.y.qq.com,REJECT
+
+[Rewrite]
+^https:\/\/music\.y\.qq\.com\/maproxy\/getPbCompressAd(?:\?|$) reject
+^https:\/\/c6\.y\.qq\.com\/tips\/fcgi-bin\/fcg_get_advert\.fcg(?:\?|$) reject
+^https:\/\/music\.y\.qq\.com\/maproxy\/getInfo(?:\?|$) response-body-json-jq '.rpt_msg_pos_ad_info=[]|.rpt_msg_neg_feedback=[]|.ad_cache_list=[]'
+
+[Script]
+http-request ^https:\/\/(?:u6|szu6)\.y\.qq\.com\/cgi-bin\/musics\.fcg(?:\?|$) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/refs/heads/codex/qqmusic-cleaner/qqmusic_ad_filter.js,requires-body=true,binary-body-mode=true,timeout=10,tag=QQ音乐净化
+
+[MITM]
+hostname = music.y.qq.com, c6.y.qq.com, u6.y.qq.com, szu6.y.qq.com
