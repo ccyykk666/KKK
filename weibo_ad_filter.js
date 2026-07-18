@@ -100,6 +100,13 @@ function cleanContainerDetail(root) {
       return !(item && item.data && item.data.itemid === "top_searching");
     });
   }
+
+  const extend = root && root.detailInfo && root.detailInfo.extend;
+  if (extend && typeof extend === "object") {
+    // 详情页右上角的微博智搜按钮，以及可能按条件展示的智搜分享入口。
+    delete extend.detail_top_right_button;
+    delete extend.ai_search_share;
+  }
 }
 
 function cleanCardList(root) {
