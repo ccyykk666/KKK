@@ -30,9 +30,9 @@ if (!$response.body) {
       cleanUserCenter(body);
     }
 
-    // HAR 753：用户对象的 icons 数组中 name="vip" 即昵称右侧会员图标。
-    // 仅移除这一项，保留 verified 等黄 V/蓝 V 认证字段。
-    cleanVipIcons(body);
+    // 轻享版既会读取 icons，也会根据 mbtype/mbrank 等字段本地生成会员标志。
+    // 仅清理会员状态，保留 verified 等黄 V/蓝 V 认证字段。
+    cleanMembershipMarks(body);
 
     $done({ body: JSON.stringify(body) });
   } catch (_) {
@@ -175,18 +175,25 @@ function cleanUserCenter(root) {
   });
 }
 
-function cleanVipIcons(root) {
+function cleanMembershipMarks(root) {
   walk(root, function (node) {
     const isUserObject =
       typeof node.screen_name === "string" ||
       Object.prototype.hasOwnProperty.call(node, "mbtype") ||
       Object.prototype.hasOwnProperty.call(node, "mbrank");
 
-    if (!isUserObject || !Array.isArray(node.icons)) return;
+    if (!isUserObject) return;
 
-    node.icons = node.icons.filter(function (icon) {
-      return String(icon && icon.name || "").toLowerCase() !== "vip";
-    });
+    if (Array.isArray(node.icons)) {
+      node.icons = node.icons.filter(function (icon) {
+        return String(icon && icon.name || "").toLowerCase() !== "vip";
+      });
+    }
+
+    if (Object.prototype.hasOwnProperty.call(node, "mbtype")) node.mbtype = 0;
+    if (Object.prototype.hasOwnProperty.call(node, "mbrank")) node.mbrank = 0;
+    if (Object.prototype.hasOwnProperty.call(node, "svip")) node.svip = 0;
+    if (Object.prototype.hasOwnProperty.call(node, "vvip")) node.vvip = 0;
   });
 }
 
