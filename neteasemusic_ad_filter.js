@@ -1,5 +1,5 @@
 /*!
- * 网易云音乐净化 5.1
+ * 网易云音乐净化
  * Loon-only response filter.
  *
  * Based on Yu9191/NeteasemusicAd.

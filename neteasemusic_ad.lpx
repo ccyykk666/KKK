@@ -1,7 +1,5 @@
 #!name=网易云音乐净化
 #!desc=过滤网易云音乐广告
-#!version=5.1
-#!date=5.1
 #!openUrl=https://apps.apple.com/app/id590338362
 #!tag=去广告
 #!system=ios
