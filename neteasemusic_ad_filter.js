@@ -17,7 +17,6 @@ const DEFAULT_SETTINGS = Object.freeze({
   HomeSimple: true,
   CommentClean: true,
   MineClean: true,
-  AdClean: true,
 });
 
 function readSettings() {
@@ -509,7 +508,7 @@ const PLAYER_PROMO_POSITIONS = new Set([
 ]);
 
 function cleanPlayerHints(payload) {
-  if (!SETTINGS.AdClean || !Array.isArray(payload.data?.hints)) return false;
+  if (!Array.isArray(payload.data?.hints)) return false;
   const removedTokens = new Set();
   const filtered = payload.data.hints.filter((hint) => {
     const viewType = hint?.template?.extra?.viewType;
@@ -575,25 +574,22 @@ function replaceData(payload, path, data) {
 const HANDLERS = {
   "/batch": (payload) => {
     let changed = false;
-    if (SETTINGS.AdClean) {
-      changed =
-        replaceData(payload, "/api/comment/tips/v2/get", {
-          count: 0,
-          offset: 0,
-          records: [],
-        }) || changed;
-      changed =
-        replaceData(payload, "/api/social/event/bff/ad/resources", {}) ||
-        changed;
-      changed =
-        replaceData(payload, "/api/ad/get", { code: 200, ads: {} }) || changed;
-      changed =
-        replaceData(
-          payload,
-          "/api/platform/song/bff/grading/song/order/entrance",
-          { songOrderEntrance: {} },
-        ) || changed;
-    }
+    changed =
+      replaceData(payload, "/api/comment/tips/v2/get", {
+        count: 0,
+        offset: 0,
+        records: [],
+      }) || changed;
+    changed =
+      replaceData(payload, "/api/social/event/bff/ad/resources", {}) || changed;
+    changed =
+      replaceData(payload, "/api/ad/get", { code: 200, ads: {} }) || changed;
+    changed =
+      replaceData(
+        payload,
+        "/api/platform/song/bff/grading/song/order/entrance",
+        { songOrderEntrance: {} },
+      ) || changed;
     if (SETTINGS.MineClean) {
       changed =
         replaceData(payload, "/api/creator/musician/reminder/message/get", {
@@ -679,12 +675,12 @@ const HANDLERS = {
     return true;
   },
   "/sp/flow/popup/query": (payload) => {
-    if (!SETTINGS.AdClean || !payload.data) return false;
+    if (!payload.data) return false;
     payload.data = {};
     return true;
   },
   "/vipactivity/app/cashier/setting/get": (payload) => {
-    if (!SETTINGS.AdClean || !payload.data?.cashierTabPopup) return false;
+    if (!payload.data?.cashierTabPopup) return false;
     payload.data.cashierTabPopup = {};
     return true;
   },
@@ -856,7 +852,7 @@ function cleanTopTabs(payload) {
 }
 
 function cleanHomepageBanners(payload) {
-  if (!SETTINGS.AdClean || !Array.isArray(payload.data?.blocks)) return false;
+  if (!Array.isArray(payload.data?.blocks)) return false;
   let changed = false;
   for (const block of payload.data.blocks) {
     if (block?.showType !== "BANNER" || !Array.isArray(block.extInfo?.banners))
