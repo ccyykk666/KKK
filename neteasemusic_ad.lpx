@@ -1,6 +1,6 @@
 #!name=网易云音乐净化
 #!desc=过滤网易云音乐广告
-#!version=5.0
+#!version=5.1
 #!openUrl=https://apps.apple.com/app/id590338362
 #!tag=去广告
 #!system=ios
@@ -38,17 +38,17 @@ DOMAIN, iadmusicmatvideo.music.126.net, REJECT
 [Script]
 http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:batch|v2\/resource\/comments|v2\/resource\/comment\/floor\/get|resource\/comments\/reply\/preload)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=评论与批量广告, argument=[{CommentClean},{AdClean},{MineClean}]
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:moment\/tab\/info\/get|comment\/feed\/inserted\/resources(?:\/combined)?|moment\/pub\/entrance\/get|moment\/song\/feed\/get) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=评论笔记净化, argument=[{CommentClean}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:moment\/tab\/info\/get|comment\/feed\/inserted\/resources(?:\/combined)?|moment\/pub\/entrance\/get|moment\/song\/feed\/get)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=评论笔记净化, argument=[{CommentClean}], enable={CommentClean}
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/tab script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=底部 Tab, argument=[{BottomSimple}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/tab(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=底部 Tab, argument=[{BottomSimple}], enable={BottomSimple}
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/top\/tab script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=顶部 Tab, argument=[{TopRcmd},{TopMusic},{TopPodcast},{TopBook},{TopLive},{TopAI}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/home\/framework\/top\/tab(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=顶部 Tab, argument=[{TopRcmd},{TopMusic},{TopPodcast},{TopBook},{TopLive},{TopAI}]
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:homepage\/block\/page|link\/scene\/show\/resource(?:\/scene-code\/player)?|sp\/flow\/popup\/query|vipactivity\/app\/cashier\/setting\/get)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=基础广告净化, argument=[{AdClean}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:homepage\/block\/page|link\/scene\/show\/resource(?:\/scene-code\/player)?|sp\/flow\/popup\/query|vipactivity\/app\/cashier\/setting\/get)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=基础广告净化, argument=[{AdClean}], enable={AdClean}
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/page\/rcmd\/(?:resource\/show|block\/resource\/multi\/refresh) script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=首页推荐精简, argument=[{HomeSimple}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/link\/page\/rcmd\/(?:resource\/show|block\/resource\/multi\/refresh)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=首页推荐精简, argument=[{HomeSimple}], enable={HomeSimple}
 
-http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:v1\/user\/info|link\/position\/show\/resource|delivery\/batch-deliver|creator\/musician\/reminder\/message\/get|vipnewcenter\/app\/resource\/common\/list)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=我的页面净化, argument=[{MineClean}]
+http-response ^https?:\/\/(?:(?:ipv4|interface\d*)\.music\.163\.com|music\.163\.com)\/x?e?api\/(?:v1\/user\/info|link\/position\/show\/resource|delivery\/batch-deliver|creator\/musician\/reminder\/message\/get)(?:\?.*)?$ script-path=https://raw.githubusercontent.com/ccyykk666/KKK/codex/neteasemusic-ad-cleaner/neteasemusic_ad_filter.js, requires-body=true, binary-body-mode=true, timeout=20, tag=我的页面净化, argument=[{MineClean}], enable={MineClean}
 
 [MitM]
 hostname = ipv4.music.163.com, interface.music.163.com, interface2.music.163.com, interface3.music.163.com, interface4.music.163.com, interface5.music.163.com, music.163.com
